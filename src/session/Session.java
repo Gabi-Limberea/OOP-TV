@@ -15,11 +15,10 @@ import java.util.ArrayList;
 
 public final class Session {
     private ArrayList<User> registeredUsers;
-
     private ArrayList<Movie> availableMoviesForUser;
     private ArrayList<Movie> availableMovies;
-    private User             currentUser;
-    private Page             currentPage;
+    private User currentUser;
+    private Page currentPage;
 
     public Session(ArrayList<UserInput> registeredUsers, ArrayList<MovieInput> availableMovies) {
         currentPage = PageFactory.getPage(PageTypes.UNAUTHORIZED_HOME_PAGE.getTitle(), null, null);
@@ -82,12 +81,10 @@ public final class Session {
         for (ActionInput action : actions) {
             if (ActionTypes.getActionType(action.getType()) == ActionTypes.CHANGE_PAGE) {
                 Page newPage = currentPage.changePage(PageTypes.getPageType(action.getPage()),
-                                                      action.getMovie(),
-                                                      this.getAvailableMoviesForUser()
+                                                      action.getMovie(), this.availableMoviesForUser
                                                      );
 
                 if (newPage == null) {
-                    System.out.println("This prints at change page to " + action.getPage());
                     outputs.add(Output.genErrorOutput());
 
                     continue;
@@ -102,21 +99,18 @@ public final class Session {
                 Output outputOnPageChange = currentPage.updateOnPageChange(this);
 
                 if (outputOnPageChange != null) {
-                    System.out.println("This prints at change page to " + action.getPage());
                     outputs.add(outputOnPageChange);
                 }
             } else if (ActionTypes.getActionType(action.getType()) == ActionTypes.ON_PAGE) {
                 if (!PageTypes.hasAction(currentPage.getTitle())) {
-                    System.out.println("This prints at on page to " + action.getFeature());
-
                     outputs.add(Output.genErrorOutput());
                     continue;
                 }
 
                 PageAction pageAction = (PageAction) currentPage;
                 Output actionOutput = pageAction.execute(this, action);
+
                 if (actionOutput != null) {
-                    System.out.println("This prints at on page to " + action.getFeature());
                     outputs.add(actionOutput);
                 }
             }

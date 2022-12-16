@@ -15,7 +15,11 @@ public class Output {
         this.error = error;
 
         if (currentMoviesList != null) {
-            this.currentMoviesList = new ArrayList<>(currentMoviesList);
+            this.currentMoviesList = new ArrayList<>();
+
+            for (Movie movie : currentMoviesList) {
+                this.currentMoviesList.add(new Movie(movie));
+            }
         } else {
             this.currentMoviesList = null;
         }

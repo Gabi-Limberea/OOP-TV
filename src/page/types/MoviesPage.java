@@ -18,6 +18,8 @@ public class MoviesPage extends Page implements PageAction {
         connectedPages.add(PageTypes.AUTHORIZED_HOME_PAGE);
         connectedPages.add(PageTypes.LOGOUT);
         connectedPages.add(PageTypes.MOVIE_DETAILS);
+        connectedPages.add(PageTypes.UPGRADES);
+        connectedPages.add(PageTypes.MOVIES);
 
         setConnectedPages(connectedPages);
     }
@@ -51,7 +53,7 @@ public class MoviesPage extends Page implements PageAction {
         ArrayList<Movie> currentMoviesList = new ArrayList<>();
 
         for (Movie movie : session.getAvailableMoviesForUser()) {
-            if (movie.getName().equals(action.getMovie())) {
+            if (movie.getName().startsWith(action.getStartsWith())) {
                 currentMoviesList.add(movie);
             }
         }
@@ -60,8 +62,13 @@ public class MoviesPage extends Page implements PageAction {
     }
 
     private Output filter(Session session, ActionInput action) {
+        ArrayList<Movie> allMoviesAvailableForUser = new ArrayList<>(session.getAvailableMovies());
+
+        allMoviesAvailableForUser.removeIf(
+                movie -> movie.isBanned(session.getCurrentUser().getCredentials().getCountry()));
+
         ArrayList<Movie> filteredMovies = action.getFilters().applyFilter(
-                session.getAvailableMoviesForUser());
+                allMoviesAvailableForUser);
 
         session.setAvailableMoviesForUser(filteredMovies);
 

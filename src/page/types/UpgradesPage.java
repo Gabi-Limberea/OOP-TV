@@ -52,7 +52,7 @@ public class UpgradesPage extends Page implements PageAction {
         session.getCurrentUser().setTokensCount(
                 session.getCurrentUser().getTokensCount() - PREMIUM_COST);
 
-        return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
+        return null;
     }
 
     private Output buyTokens(Session session, ActionInput action) {

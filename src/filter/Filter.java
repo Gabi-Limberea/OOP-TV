@@ -3,7 +3,6 @@ package filter;
 import movie.Movie;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class Filter {
     private SortBy   sort;
@@ -33,12 +32,12 @@ public class Filter {
     public ArrayList<Movie> applyFilter(ArrayList<Movie> movies) {
         ArrayList<Movie> filteredMovies = new ArrayList<>(movies);
 
-        if (sort != null) {
-            this.sort.applySort(filteredMovies);
-        }
-
         if (contains != null) {
             this.contains.applyContains(filteredMovies);
+        }
+
+        if (sort != null) {
+            this.sort.applySort(filteredMovies);
         }
 
         return filteredMovies;
@@ -85,20 +84,42 @@ public class Filter {
         }
 
         public void applySort(ArrayList<Movie> movies) {
-            switch (SortType.getSortType(this.rating)) {
-                case ASCENDING -> movies.sort(Comparator.comparingDouble(Movie::getRating));
-                case DESCENDING ->
-                        movies.sort(Comparator.comparingDouble(Movie::getRating).reversed());
-                case null -> {
+            movies.sort((movie1, movie2) -> {
+                if (this.duration != null) {
+                    return sortByDuration(movie1, movie2);
+                } else if (this.rating != null) {
+                    return sortByRating(movie1, movie2);
                 }
-            }
 
-            switch (SortType.getSortType(this.duration)) {
-                case ASCENDING -> movies.sort(Comparator.comparingInt(Movie::getDuration));
-                case DESCENDING ->
-                        movies.sort(Comparator.comparingInt(Movie::getDuration).reversed());
-                case null -> {
+                return 0;
+            });
+        }
+
+        private int sortByDuration(Movie movie1, Movie movie2) {
+            if (SortType.getSortType(this.duration) == SortType.ASCENDING) {
+                int sortResult = Integer.compare(movie1.getDuration(), movie2.getDuration());
+
+                if (sortResult == 0 && this.rating != null) {
+                    return sortByRating(movie1, movie2);
                 }
+
+                return sortResult;
+            } else {
+                int sortResult = Integer.compare(movie2.getDuration(), movie1.getDuration());
+
+                if (sortResult == 0 && this.rating != null) {
+                    return sortByRating(movie1, movie2);
+                }
+
+                return sortResult;
+            }
+        }
+
+        private int sortByRating(Movie movie1, Movie movie2) {
+            if (SortType.getSortType(this.rating) == SortType.ASCENDING) {
+                return Double.compare(movie2.getRating(), movie1.getRating());
+            } else {
+                return Double.compare(movie1.getRating(), movie2.getRating());
             }
         }
     }

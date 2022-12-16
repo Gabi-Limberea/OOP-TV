@@ -1,5 +1,6 @@
 package movie;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -10,16 +11,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Movie {
-    private String            name;
-    private int               year;
-    private int               duration;
-    private ArrayList<String> genres;
-    private ArrayList<String> actors;
-    private ArrayList<String> countriesBanned;
-    private int               numLikes;
-    private int               numRatings;
+    public static final int                MAX_RATING = 5;
+    private             String             name;
+    private             int                year;
+    private             int                duration;
+    private             ArrayList<String>  genres;
+    private             ArrayList<String>  actors;
+    private             ArrayList<String>  countriesBanned;
+    private             int                numLikes;
+    private             int                numRatings;
     @JsonSerialize(using = RatingSerializer.class)
-    private double            rating;
+    private             double             rating;
+    @JsonIgnore
+    private             ArrayList<Integer> ratings;
 
     public Movie(final MovieInput source) {
         this.name = source.getName();
@@ -31,6 +35,28 @@ public class Movie {
         this.rating = 0.00f;
         this.numLikes = 0;
         this.numRatings = 0;
+        this.ratings = new ArrayList<>();
+    }
+
+    public Movie(final Movie source) {
+        this.name = source.getName();
+        this.year = source.getYear();
+        this.duration = source.getDuration();
+        this.genres = new ArrayList<>(source.getGenres());
+        this.actors = new ArrayList<>(source.getActors());
+        this.countriesBanned = new ArrayList<>(source.getCountriesBanned());
+        this.rating = source.getRating();
+        this.numLikes = source.getNumLikes();
+        this.numRatings = source.getNumRatings();
+        this.ratings = new ArrayList<>(source.getRatings());
+    }
+
+    public ArrayList<Integer> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(ArrayList<Integer> ratings) {
+        this.ratings = ratings;
     }
 
     public String getName() {
@@ -107,6 +133,22 @@ public class Movie {
 
     public boolean isBanned(String country) {
         return countriesBanned.contains(country);
+    }
+
+    public void addLike() {
+        numLikes++;
+    }
+
+    public void addRating(final int rating) {
+        this.ratings.add(rating);
+        numRatings++;
+
+        double sum = 0;
+        for (int i = 0; i < numRatings; i++) {
+            sum += ratings.get(i);
+        }
+
+        this.rating = sum / numRatings;
     }
 
     private static class RatingSerializer extends JsonSerializer<Double> {

@@ -27,10 +27,26 @@ public class User {
         this.credentials = new Credentials(source.getCredentials());
         this.tokensCount = source.getTokensCount();
         this.numFreePremiumMovies = source.getNumFreePremiumMovies();
-        this.purchasedMovies = new ArrayList<>(source.getPurchasedMovies());
-        this.watchedMovies = new ArrayList<>(source.getWatchedMovies());
-        this.likedMovies = new ArrayList<>(source.getLikedMovies());
-        this.ratedMovies = new ArrayList<>(source.getRatedMovies());
+
+        this.purchasedMovies = new ArrayList<>();
+        for (Movie movie : source.getPurchasedMovies()) {
+            this.purchasedMovies.add(new Movie(movie));
+        }
+
+        this.watchedMovies = new ArrayList<>();
+        for (Movie movie : source.getWatchedMovies()) {
+            this.watchedMovies.add(new Movie(movie));
+        }
+
+        this.likedMovies = new ArrayList<>();
+        for (Movie movie : source.getLikedMovies()) {
+            this.likedMovies.add(new Movie(movie));
+        }
+
+        this.ratedMovies = new ArrayList<>();
+        for (Movie movie : source.getRatedMovies()) {
+            this.ratedMovies.add(new Movie(movie));
+        }
     }
 
     public Credentials getCredentials() {
@@ -87,5 +103,30 @@ public class User {
 
     public void setRatedMovies(ArrayList<Movie> ratedMovies) {
         this.ratedMovies = ratedMovies;
+    }
+
+    public boolean addPurchasedMovie(final Movie movie) {
+        if (this.numFreePremiumMovies > 0 && credentials.isPremium()) {
+            this.numFreePremiumMovies--;
+        } else if (this.tokensCount > 0) {
+            this.tokensCount -= 2;
+        } else {
+            return false;
+        }
+
+        this.purchasedMovies.add(movie);
+        return true;
+    }
+
+    public void addWatchedMovie(final Movie movie) {
+        this.watchedMovies.add(movie);
+    }
+
+    public void addLikedMovie(final Movie movie) {
+        this.likedMovies.add(movie);
+    }
+
+    public void addRatedMovie(final Movie movie) {
+        this.ratedMovies.add(movie);
     }
 }
