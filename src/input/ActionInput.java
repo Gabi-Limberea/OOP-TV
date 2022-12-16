@@ -1,19 +1,26 @@
 package input;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import filter.Filter;
 import user.Credentials;
 
-import java.util.ArrayList;
-
 public final class ActionInput {
-    private String type;
-    private String page;
-    private String feature;
+    private String      type;
+    private String      page;
+    private String      feature;
     private Credentials credentials;
-    private String startsWith;
-    private int count;
-    private int rate;
-    private Filter filters;
+    private String      startsWith;
+    private int         count;
+    private int         rate;
+    private Filter      filters;
+    private String      movie;
+
+    public String getMovie() {
+        return movie;
+    }
+
+    public void setMovie(String movie) {
+        this.movie = movie;
+    }
 
     public String getType() {
         return type;
@@ -71,7 +78,7 @@ public final class ActionInput {
         this.rate = rate;
     }
 
-    public Filter getFilters() {
+    public filter.Filter getFilters() {
         return filters;
     }
 
@@ -79,66 +86,11 @@ public final class ActionInput {
         this.filters = filters;
     }
 
-    private static class Filter {
-        private SortBy sort;
-        private Contains contains;
-
-        public SortBy getSort() {
-            return sort;
-        }
-
-        public void setSort(SortBy sort) {
-            this.sort = sort;
-        }
-
-        public Contains getContains() {
-            return contains;
-        }
-
-        public void setContains(Contains contains) {
-            this.contains = contains;
-        }
-
-        private static class SortBy {
-            private String rating;
-            private String duration;
-
-            public String getRating() {
-                return rating;
-            }
-
-            public void setRating(String rating) {
-                this.rating = rating;
-            }
-
-            public String getDuration() {
-                return duration;
-            }
-
-            public void setDuration(String duration) {
-                this.duration = duration;
-            }
-        }
-
-        private static class Contains {
-            private ArrayList<String> actors;
-            private ArrayList<String> genre;
-
-            public ArrayList<String> getActors() {
-                return actors;
-            }
-
-            public void setActors(ArrayList<String> actors) {
-                this.actors = actors;
-            }
-
-            public ArrayList<String> getGenre() {
-                return genre;
-            }
-
-            public void setGenre(ArrayList<String> genre) {
-                this.genre = genre;
-            }
-        }
+    @Override
+    public String toString() {
+        return "ActionInput{" + "type='" + type + '\'' + ", page='" + page + '\'' + ", feature='"
+               + feature + '\'' + ", credentials=" + credentials + ", startsWith='" + startsWith
+               + '\'' + ", count=" + count + ", rate=" + rate + ", filters=" + filters + ", movie='"
+               + movie + '\'' + '}';
     }
 }

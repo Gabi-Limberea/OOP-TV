@@ -13,6 +13,26 @@ public class User {
     private ArrayList<Movie> likedMovies;
     private ArrayList<Movie> ratedMovies;
 
+    public User(final Credentials source) {
+        this.credentials = new Credentials(source);
+        this.tokensCount = 0;
+        this.numFreePremiumMovies = 15;
+        this.purchasedMovies = new ArrayList<>();
+        this.watchedMovies = new ArrayList<>();
+        this.likedMovies = new ArrayList<>();
+        this.ratedMovies = new ArrayList<>();
+    }
+
+    public User(final User source) {
+        this.credentials = new Credentials(source.getCredentials());
+        this.tokensCount = source.getTokensCount();
+        this.numFreePremiumMovies = source.getNumFreePremiumMovies();
+        this.purchasedMovies = new ArrayList<>(source.getPurchasedMovies());
+        this.watchedMovies = new ArrayList<>(source.getWatchedMovies());
+        this.likedMovies = new ArrayList<>(source.getLikedMovies());
+        this.ratedMovies = new ArrayList<>(source.getRatedMovies());
+    }
+
     public Credentials getCredentials() {
         return credentials;
     }

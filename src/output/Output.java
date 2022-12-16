@@ -6,9 +6,30 @@ import user.User;
 import java.util.ArrayList;
 
 public class Output {
-    private String error;
-    private ArrayList<Movie> currentMovieList;
-    private User currentUser;
+    private static final String           ERROR = "Error";
+    private              String           error;
+    private              ArrayList<Movie> currentMoviesList;
+    private              User             currentUser;
+
+    public Output(String error, ArrayList<Movie> currentMoviesList, User currentUser) {
+        this.error = error;
+
+        if (currentMoviesList != null) {
+            this.currentMoviesList = new ArrayList<>(currentMoviesList);
+        } else {
+            this.currentMoviesList = null;
+        }
+
+        if (currentUser != null) {
+            this.currentUser = new User(currentUser);
+        } else {
+            this.currentUser = null;
+        }
+    }
+
+    public static Output genErrorOutput() {
+        return new Output(ERROR, new ArrayList<>(), null);
+    }
 
     public String getError() {
         return error;
@@ -18,12 +39,12 @@ public class Output {
         this.error = error;
     }
 
-    public ArrayList<Movie> getCurrentMovieList() {
-        return currentMovieList;
+    public ArrayList<Movie> getCurrentMoviesList() {
+        return currentMoviesList;
     }
 
-    public void setCurrentMovieList(ArrayList<Movie> currentMovieList) {
-        this.currentMovieList = currentMovieList;
+    public void setCurrentMoviesList(ArrayList<Movie> currentMoviesList) {
+        this.currentMoviesList = currentMoviesList;
     }
 
     public User getCurrentUser() {

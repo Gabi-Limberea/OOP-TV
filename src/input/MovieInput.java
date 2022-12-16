@@ -3,9 +3,9 @@ package input;
 import java.util.ArrayList;
 
 public final class MovieInput {
-    private String name;
-    private int year;
-    private int duration;
+    private String            name;
+    private int               year;
+    private int               duration;
     private ArrayList<String> genres;
     private ArrayList<String> actors;
     private ArrayList<String> countriesBanned;
@@ -56,5 +56,12 @@ public final class MovieInput {
 
     public void setCountriesBanned(ArrayList<String> countriesBanned) {
         this.countriesBanned = countriesBanned;
+    }
+
+    @Override
+    public String toString() {
+        return "MovieInput{" + "name='" + name + '\'' + ", year=" + year + ", duration=" + duration
+               + ", genres=" + genres + ", actors=" + actors + ", countriesBanned="
+               + countriesBanned + '}';
     }
 }

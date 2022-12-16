@@ -1,7 +1,7 @@
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import input.Input;
 import output.Output;
+import session.Session;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,15 +10,15 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
 
-        Input input = mapper.readValue(new File("checker/resources/in/basic_1.json"),
-                                          Input.class
-                                         );
+        Input input = mapper.readValue(new File(args[0]), Input.class);
 
-        ArrayList<Output> output = new ArrayList<>();
+        Session session = new Session(input.getUsers(), input.getMovies());
+        ArrayList<Output> output = new ArrayList<>(session.runSession(input.getActions()));
 
-        mapper.writerWithDefaultPrettyPrinter().writeValue(
-                new File("output.json"), input);
+        String outputString = args[0].replace("/in/", "/out/");
+
+        mapper.writerWithDefaultPrettyPrinter().writeValue(new File(args[1]), output);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputString), output);
     }
 }

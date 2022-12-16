@@ -3,7 +3,7 @@ package input;
 import java.util.ArrayList;
 
 public final class Input {
-    private ArrayList<UserInput> users;
+    private ArrayList<UserInput>   users;
     private ArrayList<MovieInput>  movies;
     private ArrayList<ActionInput> actions;
 
@@ -29,5 +29,10 @@ public final class Input {
 
     public void setActions(ArrayList<ActionInput> actions) {
         this.actions = actions;
+    }
+
+    @Override
+    public String toString() {
+        return "Input{" + "users=" + users + ", movies=" + movies + ", actions=" + actions + '}';
     }
 }

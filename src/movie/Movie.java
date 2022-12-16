@@ -1,5 +1,12 @@
 package movie;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import input.MovieInput;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Movie {
@@ -9,9 +16,22 @@ public class Movie {
     private ArrayList<String> genres;
     private ArrayList<String> actors;
     private ArrayList<String> countriesBanned;
-    private double            rating;
     private int               numLikes;
     private int               numRatings;
+    @JsonSerialize(using = RatingSerializer.class)
+    private double            rating;
+
+    public Movie(final MovieInput source) {
+        this.name = source.getName();
+        this.year = source.getYear();
+        this.duration = source.getDuration();
+        this.genres = source.getGenres();
+        this.actors = source.getActors();
+        this.countriesBanned = source.getCountriesBanned();
+        this.rating = 0.00f;
+        this.numLikes = 0;
+        this.numRatings = 0;
+    }
 
     public String getName() {
         return name;
@@ -83,5 +103,18 @@ public class Movie {
 
     public void setNumRatings(int numRatings) {
         this.numRatings = numRatings;
+    }
+
+    public boolean isBanned(String country) {
+        return countriesBanned.contains(country);
+    }
+
+    private static class RatingSerializer extends JsonSerializer<Double> {
+        @Override
+        public void serialize(
+                Double value, JsonGenerator gen, SerializerProvider serializers
+                             ) throws IOException {
+            gen.writeNumber(String.format("%.2f", value));
+        }
     }
 }
