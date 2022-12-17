@@ -35,8 +35,8 @@ public final class AuthorizedHomePage extends Page {
     }
 
     /**
-     * Apply whatever changes are necessary when changing to a new page and generate the appropriate
-     * output
+     * Apply whatever changes are necessary when changing to a new page and
+     * generate the appropriate output
      *
      * @param session the session to update
      * @return the output to be displayed

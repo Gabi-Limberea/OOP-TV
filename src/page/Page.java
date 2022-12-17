@@ -23,7 +23,8 @@ public abstract class Page {
     }
 
     /**
-     * @param connectedPages the types of pages that are accessible from this page
+     * @param connectedPages the types of pages that are accessible from this
+     *                       page
      */
     public void setConnectedPages(final ArrayList<PageTypes> connectedPages) {
         this.connectedPages = connectedPages;
@@ -45,7 +46,8 @@ public abstract class Page {
 
     /**
      * @param pageType               the type of page to change to
-     * @param movieTitle             the title of the movie when changing to the movie details page
+     * @param movieTitle             the title of the movie when changing to the
+     *                               movie details page
      * @param availableMoviesForUser the movies that are available for the user
      * @return the new page
      */
@@ -61,8 +63,8 @@ public abstract class Page {
     }
 
     /**
-     * Apply whatever changes are necessary when changing to a new page and generate the appropriate
-     * output
+     * Apply whatever changes are necessary when changing to a new page and
+     * generate the appropriate output
      *
      * @param session the session to update
      * @return the output to be displayed
