@@ -3,14 +3,14 @@ package page.types;
 import input.ActionInput;
 import output.Output;
 import page.Page;
-import page.PageAction;
+import page.PageActionStrategy;
 import page.PageTypes;
 import session.Session;
 import user.UserTypes;
 
 import java.util.ArrayList;
 
-public class UpgradesPage extends Page implements PageAction {
+public final class UpgradesPage extends Page implements PageActionStrategy {
     private static final int PREMIUM_COST = 10;
 
     public UpgradesPage() {
@@ -24,13 +24,29 @@ public class UpgradesPage extends Page implements PageAction {
         super.setConnectedPages(connectedPages);
     }
 
+    /**
+     * Apply whatever changes are necessary when changing to a new page and generate the appropriate
+     * output
+     *
+     * @param session the session to update
+     * @return the output to be displayed
+     */
     @Override
-    public Output updateOnPageChange(Session session) {
+    public Output updateOnPageChange(final Session session) {
         return null;
     }
 
+    /**
+     * Execute the action specified by the user and generate the appropriate
+     * output. Can return error output if the action is not supported by the
+     * page.
+     *
+     * @param session the session in which the action is executed
+     * @param action  the action to be executed
+     * @return the appropriate output
+     */
     @Override
-    public Output execute(Session session, ActionInput action) {
+    public Output execute(final Session session, final ActionInput action) {
         if (action.getFeature().equals(Actions.BUY_PREMIUM.toString())) {
             return buyPremium(session);
         }
@@ -42,7 +58,13 @@ public class UpgradesPage extends Page implements PageAction {
         return Output.genErrorOutput();
     }
 
-    private Output buyPremium(Session session) {
+    /**
+     * Buy a premium subscription for the user.
+     *
+     * @param session the session in which the action is executed
+     * @return the appropriate output
+     */
+    private Output buyPremium(final Session session) {
         if (session.getCurrentUser().getCredentials().isPremium()
             || session.getCurrentUser().getTokensCount() < PREMIUM_COST) {
             return Output.genErrorOutput();
@@ -55,7 +77,14 @@ public class UpgradesPage extends Page implements PageAction {
         return null;
     }
 
-    private Output buyTokens(Session session, ActionInput action) {
+    /**
+     * Buy tokens for the user.
+     *
+     * @param session the session in which the action is executed
+     * @param action  the action to be executed
+     * @return the appropriate output
+     */
+    private Output buyTokens(final Session session, final ActionInput action) {
         if (Integer.parseInt(session.getCurrentUser().getCredentials().getBalance())
             < action.getCount()) {
             return Output.genErrorOutput();

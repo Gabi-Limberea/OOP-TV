@@ -12,7 +12,16 @@ import page.types.UpgradesPage;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class PageFactory {
+public final class PageFactory {
+    private PageFactory() {
+    }
+
+    /**
+     * @param pageTitle              the title of the page to create
+     * @param movieTitle             the title of the movie when creating the movie details page
+     * @param availableMoviesForUser the movies that are available for the user
+     * @return the page
+     */
     public static Page getPage(
             final String pageTitle, final String movieTitle,
             final ArrayList<Movie> availableMoviesForUser

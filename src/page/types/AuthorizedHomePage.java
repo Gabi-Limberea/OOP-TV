@@ -7,7 +7,7 @@ import session.Session;
 
 import java.util.ArrayList;
 
-public class AuthorizedHomePage extends Page {
+public final class AuthorizedHomePage extends Page {
     private static AuthorizedHomePage instance = null;
 
     private AuthorizedHomePage() {
@@ -23,6 +23,9 @@ public class AuthorizedHomePage extends Page {
         super.setConnectedPages(connectedPages);
     }
 
+    /**
+     * @return the instance of the authorized home page
+     */
     public static AuthorizedHomePage getInstance() {
         if (instance == null) {
             instance = new AuthorizedHomePage();
@@ -31,8 +34,15 @@ public class AuthorizedHomePage extends Page {
         return instance;
     }
 
+    /**
+     * Apply whatever changes are necessary when changing to a new page and generate the appropriate
+     * output
+     *
+     * @param session the session to update
+     * @return the output to be displayed
+     */
     @Override
-    public Output updateOnPageChange(Session session) {
+    public Output updateOnPageChange(final Session session) {
         return null;
     }
 }

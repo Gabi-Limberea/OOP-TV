@@ -14,83 +14,129 @@ public final class ActionInput {
     private Filter      filters;
     private String      movie;
 
+    /**
+     * @return the name of the movie
+     */
     public String getMovie() {
         return movie;
     }
 
-    public void setMovie(String movie) {
+    /**
+     * @param movie the new name of the movie
+     */
+    public void setMovie(final String movie) {
         this.movie = movie;
     }
 
+    /**
+     * @return the type of the action
+     */
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    /**
+     * @param type the new type of the action
+     */
+    public void setType(final String type) {
         this.type = type;
     }
 
+    /**
+     * @return the page
+     */
     public String getPage() {
         return page;
     }
 
-    public void setPage(String page) {
+    /**
+     * @param page the new page
+     */
+    public void setPage(final String page) {
         this.page = page;
     }
 
+    /**
+     * @return the feature
+     */
     public String getFeature() {
         return feature;
     }
 
-    public void setFeature(String feature) {
+    /**
+     * @param feature the new feature
+     */
+    public void setFeature(final String feature) {
         this.feature = feature;
     }
 
+    /**
+     * @return the credentials
+     */
     public Credentials getCredentials() {
         return credentials;
     }
 
-    public void setCredentials(Credentials credentials) {
+    /**
+     * @param credentials the new credentials
+     */
+    public void setCredentials(final Credentials credentials) {
         this.credentials = credentials;
     }
 
+    /**
+     * @return the substring to search for
+     */
     public String getStartsWith() {
         return startsWith;
     }
 
-    public void setStartsWith(String startsWith) {
+    /**
+     * @param startsWith the new substring to search for
+     */
+    public void setStartsWith(final String startsWith) {
         this.startsWith = startsWith;
     }
 
+    /**
+     * @return the number of tokens
+     */
     public int getCount() {
         return count;
     }
 
-    public void setCount(int count) {
+    /**
+     * @param count the new number of tokens
+     */
+    public void setCount(final int count) {
         this.count = count;
     }
 
+    /**
+     * @return the rating
+     */
     public int getRate() {
         return rate;
     }
 
-    public void setRate(int rate) {
+    /**
+     * @param rate the new rating
+     */
+    public void setRate(final int rate) {
         this.rate = rate;
     }
 
+    /**
+     * @return the filters
+     */
     public filter.Filter getFilters() {
         return filters;
     }
 
-    public void setFilters(Filter filters) {
+    /**
+     * @param filters the new filters
+     */
+    public void setFilters(final Filter filters) {
         this.filters = filters;
-    }
-
-    @Override
-    public String toString() {
-        return "ActionInput{" + "type='" + type + '\'' + ", page='" + page + '\'' + ", feature='"
-               + feature + '\'' + ", credentials=" + credentials + ", startsWith='" + startsWith
-               + '\'' + ", count=" + count + ", rate=" + rate + ", filters=" + filters + ", movie='"
-               + movie + '\'' + '}';
     }
 }

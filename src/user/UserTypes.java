@@ -3,15 +3,19 @@ package user;
 public enum UserTypes {
     STANDARD("standard"), PREMIUM("premium");
 
-    private final String userType;
+    private final String name;
 
-    UserTypes(final String userType) {
-        this.userType = userType;
+    UserTypes(final String name) {
+        this.name = name;
     }
 
-    public static UserTypes getUserType(final String userType) {
+    /**
+     * @param name the name of the given user account type
+     * @return the type of the user account associated with the given name
+     */
+    public static UserTypes getUserType(final String name) {
         for (UserTypes type : UserTypes.values()) {
-            if (type.userType.equals(userType)) {
+            if (type.name.equals(name)) {
                 return type;
             }
         }
@@ -21,6 +25,6 @@ public enum UserTypes {
 
     @Override
     public String toString() {
-        return this.userType;
+        return this.name;
     }
 }

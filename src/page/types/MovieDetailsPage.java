@@ -4,13 +4,13 @@ import input.ActionInput;
 import movie.Movie;
 import output.Output;
 import page.Page;
-import page.PageAction;
+import page.PageActionStrategy;
 import page.PageTypes;
 import session.Session;
 
 import java.util.ArrayList;
 
-public class MovieDetailsPage extends Page implements PageAction {
+public final class MovieDetailsPage extends Page implements PageActionStrategy {
     private final String movieTitle;
 
     public MovieDetailsPage(final String movieTitle) {
@@ -27,8 +27,15 @@ public class MovieDetailsPage extends Page implements PageAction {
         super.setConnectedPages(connectedPages);
     }
 
+    /**
+     * Apply whatever changes are necessary when changing to a new page and
+     * generate the appropriate output
+     *
+     * @param session the session to update
+     * @return the output to be displayed
+     */
     @Override
-    public Output updateOnPageChange(Session session) {
+    public Output updateOnPageChange(final Session session) {
         ArrayList<Movie> focusedMovies = new ArrayList<>();
 
         for (Movie movie : session.getAvailableMovies()) {
@@ -45,30 +52,56 @@ public class MovieDetailsPage extends Page implements PageAction {
         return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
     }
 
+    /**
+     * Execute the action specified by the user and generate the appropriate
+     * output. Can return error output if the action is not supported by the
+     * page.
+     *
+     * @param session the session in which the action is executed
+     * @param action  the action to be executed
+     * @return the appropriate output
+     */
     @Override
-    public Output execute(Session session, ActionInput action) {
+    public Output execute(final Session session, final ActionInput action) {
         return switch (Actions.getAction(action.getFeature())) {
             case PURCHASE -> purchase(session);
             case WATCH -> watch(session);
             case LIKE -> like(session);
             case RATE -> rate(session, action);
-            case null -> Output.genErrorOutput();
+            default -> Output.genErrorOutput();
         };
     }
 
-    public Output purchase(Session session) {
+    /**
+     * Try to purchase the movie that the page is focused on.
+     * Will return error output if the user does not have enough tokens for it
+     * or if they already own it.
+     *
+     * @param session the session in which the action is executed
+     * @return the appropriate output
+     */
+    public Output purchase(final Session session) {
         Movie movie = session.getAvailableMoviesForUser().get(0);
 
         if (session.getCurrentUser().getPurchasedMovies().contains(movie)) {
             return Output.genErrorOutput();
         }
 
-        if (!session.getCurrentUser().addPurchasedMovie(movie)) return Output.genErrorOutput();
+        if (!session.getCurrentUser().addPurchasedMovie(movie)) {
+            return Output.genErrorOutput();
+        }
 
         return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
     }
 
-    public Output watch(Session session) {
+    /**
+     * Try to watch the movie that the page is focused on.
+     * Will return error output if the user does not own it.
+     *
+     * @param session the session in which the action is executed
+     * @return the appropriate output
+     */
+    public Output watch(final Session session) {
         Movie movie = session.getAvailableMoviesForUser().get(0);
 
         if (session.getCurrentUser().getPurchasedMovies().contains(movie)) {
@@ -80,7 +113,15 @@ public class MovieDetailsPage extends Page implements PageAction {
         return Output.genErrorOutput();
     }
 
-    public Output like(Session session) {
+    /**
+     * Try to like the movie that the page is focused on.
+     * Will return error output if the user already likes it or has not watched
+     * the movie.
+     *
+     * @param session the session in which the action is executed
+     * @return the appropriate output
+     */
+    public Output like(final Session session) {
         Movie movie = session.getAvailableMoviesForUser().get(0);
 
         if (session.getCurrentUser().getPurchasedMovies().contains(movie)
@@ -94,7 +135,16 @@ public class MovieDetailsPage extends Page implements PageAction {
         return Output.genErrorOutput();
     }
 
-    public Output rate(Session session, ActionInput action) {
+    /**
+     * Try to rate the movie that the page is focused on.
+     * Will return error output if the user has not watched the movie or if the
+     * rating value is invalid (not between 1 and 5).
+     *
+     * @param session the session in which the action is executed
+     * @param action  the action to be executed
+     * @return the appropriate output
+     */
+    public Output rate(final Session session, final ActionInput action) {
         Movie movie = session.getAvailableMoviesForUser().get(0);
 
         if (session.getCurrentUser().getWatchedMovies().contains(movie)) {

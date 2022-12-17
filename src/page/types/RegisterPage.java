@@ -3,19 +3,22 @@ package page.types;
 import input.ActionInput;
 import output.Output;
 import page.Page;
-import page.PageAction;
+import page.PageActionStrategy;
 import page.PageFactory;
 import page.PageTypes;
 import session.Session;
 import user.User;
 
-public class RegisterPage extends Page implements PageAction {
+public final class RegisterPage extends Page implements PageActionStrategy {
     private static RegisterPage instance = null;
 
     private RegisterPage() {
         super(PageTypes.REGISTER.getTitle());
     }
 
+    /**
+     * @return instance of registration page
+     */
     public static RegisterPage getInstance() {
         if (instance == null) {
             instance = new RegisterPage();
@@ -24,11 +27,27 @@ public class RegisterPage extends Page implements PageAction {
         return instance;
     }
 
+    /**
+     * Apply whatever changes are necessary when changing to a new page and
+     * generate the appropriate output
+     *
+     * @param session the session to update
+     * @return the output to be displayed
+     */
     @Override
-    public Output updateOnPageChange(Session session) {
+    public Output updateOnPageChange(final Session session) {
         return null;
     }
 
+    /**
+     * Execute the action specified by the user and generate the appropriate
+     * output. Can return error output if the action is not supported by the
+     * page.
+     *
+     * @param session the session in which the action is executed
+     * @param action  the action to be executed
+     * @return the appropriate output
+     */
     @Override
     public Output execute(final Session session, final ActionInput action) {
         if (!action.getFeature().equals(Actions.REGISTER.toString())) {
@@ -38,6 +57,14 @@ public class RegisterPage extends Page implements PageAction {
         return register(session, action);
     }
 
+    /**
+     * Try to register a new user. Will return error and go to the unauthorized
+     * homepage if a user with the same username already exists.
+     *
+     * @param session the session in which the action is executed
+     * @param action  the action to be executed
+     * @return the appropriate output
+     */
     public Output register(final Session session, final ActionInput action) {
         for (User user : session.getRegisteredUsers()) {
             if (user.getCredentials().getName().equals(action.getCredentials().getName())) {

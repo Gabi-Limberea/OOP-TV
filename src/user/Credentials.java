@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Objects;
 
-public class Credentials {
+public final class Credentials {
     private String name;
     private String password;
     private String accountType;
@@ -38,50 +38,84 @@ public class Credentials {
         this.balance = source.balance;
     }
 
+    /**
+     * @return the name of the user
+     */
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    /**
+     * @param name the new name of the user
+     */
+    public void setName(final String name) {
         this.name = name;
     }
 
+    /**
+     * @return the password of the user
+     */
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    /**
+     * @param password the new password of the user
+     */
+    public void setPassword(final String password) {
         this.password = password;
     }
 
+    /**
+     * @return the account type of the user
+     */
     public String getAccountType() {
         return accountType;
     }
 
-    public void setAccountType(String accountType) {
+    /**
+     * @param accountType the new account type of the user
+     */
+    public void setAccountType(final String accountType) {
         this.accountType = accountType;
     }
 
+    /**
+     * @return the country of the user
+     */
     public String getCountry() {
         return country;
     }
 
-    public void setCountry(String country) {
+    /**
+     * @param country the new country of the user
+     */
+    public void setCountry(final String country) {
         this.country = country;
     }
 
+    /**
+     * @return the balance of the user
+     */
     public String getBalance() {
         return balance;
     }
 
-    public void setBalance(String balance) {
+    /**
+     * @param balance the new balance of the user
+     */
+    public void setBalance(final String balance) {
         this.balance = balance;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Credentials that = (Credentials) o;
         return name.equals(that.name) && password.equals(that.password);
     }
@@ -91,6 +125,9 @@ public class Credentials {
         return Objects.hash(name, password);
     }
 
+    /**
+     * @return true if the user has a premium account, false otherwise
+     */
     @JsonIgnore
     public boolean isPremium() {
         return UserTypes.getUserType(this.accountType) == UserTypes.PREMIUM;

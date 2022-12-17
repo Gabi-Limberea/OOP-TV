@@ -6,7 +6,7 @@ import input.UserInput;
 import movie.Movie;
 import output.Output;
 import page.Page;
-import page.PageAction;
+import page.PageActionStrategy;
 import page.PageFactory;
 import page.PageTypes;
 import user.User;
@@ -20,7 +20,9 @@ public final class Session {
     private User currentUser;
     private Page currentPage;
 
-    public Session(ArrayList<UserInput> registeredUsers, ArrayList<MovieInput> availableMovies) {
+    public Session(
+            final ArrayList<UserInput> registeredUsers, final ArrayList<MovieInput> availableMovies
+                  ) {
         currentPage = PageFactory.getPage(PageTypes.UNAUTHORIZED_HOME_PAGE.getTitle(), null, null);
         this.registeredUsers = new ArrayList<>();
         this.availableMovies = new ArrayList<>();
@@ -35,47 +37,82 @@ public final class Session {
         }
     }
 
+    /**
+     * @return the list of available movies for the current user
+     */
     public ArrayList<Movie> getAvailableMoviesForUser() {
         return availableMoviesForUser;
     }
 
-    public void setAvailableMoviesForUser(ArrayList<Movie> availableMoviesForUser) {
+    /**
+     * @param availableMoviesForUser the new list of available movies for the
+     *                               current user
+     */
+    public void setAvailableMoviesForUser(final ArrayList<Movie> availableMoviesForUser) {
         this.availableMoviesForUser = availableMoviesForUser;
     }
 
+    /**
+     * @return the list of registered users
+     */
     public ArrayList<User> getRegisteredUsers() {
         return registeredUsers;
     }
 
-    public void setRegisteredUsers(ArrayList<User> registeredUsers) {
+    /**
+     * @param registeredUsers the new list of registered users
+     */
+    public void setRegisteredUsers(final ArrayList<User> registeredUsers) {
         this.registeredUsers = registeredUsers;
     }
 
+    /**
+     * @return the list of available movies on the platform
+     */
     public ArrayList<Movie> getAvailableMovies() {
         return availableMovies;
     }
 
-    public void setAvailableMovies(ArrayList<Movie> availableMovies) {
+    /**
+     * @param availableMovies the new list of available movies on the platform
+     */
+    public void setAvailableMovies(final ArrayList<Movie> availableMovies) {
         this.availableMovies = availableMovies;
     }
 
+    /**
+     * @return the current user
+     */
     public User getCurrentUser() {
         return currentUser;
     }
 
-    public void setCurrentUser(User currentUser) {
+    /**
+     * @param currentUser the new current user
+     */
+    public void setCurrentUser(final User currentUser) {
         this.currentUser = currentUser;
     }
 
+    /**
+     * @return the current page
+     */
     public Page getCurrentPage() {
         return currentPage;
     }
 
-    public void setCurrentPage(Page currentPage) {
+    /**
+     * @param currentPage the new current page
+     */
+    public void setCurrentPage(final Page currentPage) {
         this.currentPage = currentPage;
     }
 
-    public ArrayList<Output> runSession(ArrayList<ActionInput> actions) {
+    /**
+     * @param actions the list of actions to be executed
+     * @return the list of outputs resulted from the execution of the actions
+     */
+    public ArrayList<Output> runSession(final ArrayList<ActionInput> actions) {
         ArrayList<Output> outputs = new ArrayList<>();
 
         for (ActionInput action : actions) {
@@ -107,7 +144,7 @@ public final class Session {
                     continue;
                 }
 
-                PageAction pageAction = (PageAction) currentPage;
+                PageActionStrategy pageAction = (PageActionStrategy) currentPage;
                 Output actionOutput = pageAction.execute(this, action);
 
                 if (actionOutput != null) {

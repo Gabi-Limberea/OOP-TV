@@ -3,15 +3,19 @@ package session;
 public enum ActionTypes {
     CHANGE_PAGE("change page"), ON_PAGE("on page");
 
-    private final String title;
+    private final String name;
 
-    ActionTypes(final String title) {
-        this.title = title;
+    ActionTypes(final String name) {
+        this.name = name;
     }
 
-    public static ActionTypes getActionType(final String title) {
+    /**
+     * @param name the name of the action type
+     * @return the action type associated with the name
+     */
+    public static ActionTypes getActionType(final String name) {
         for (ActionTypes actionType : ActionTypes.values()) {
-            if (actionType.title.equals(title)) {
+            if (actionType.name.equals(name)) {
                 return actionType;
             }
         }

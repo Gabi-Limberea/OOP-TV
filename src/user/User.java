@@ -4,19 +4,20 @@ import movie.Movie;
 
 import java.util.ArrayList;
 
-public class User {
-    private Credentials      credentials;
-    private int              tokensCount;
-    private int              numFreePremiumMovies;
-    private ArrayList<Movie> purchasedMovies;
-    private ArrayList<Movie> watchedMovies;
-    private ArrayList<Movie> likedMovies;
-    private ArrayList<Movie> ratedMovies;
+public final class User {
+    private static final int              MAX_FREE_PREMIUM_MOVIES = 15;
+    private              Credentials      credentials;
+    private              int              tokensCount;
+    private              int              numFreePremiumMovies;
+    private              ArrayList<Movie> purchasedMovies;
+    private              ArrayList<Movie> watchedMovies;
+    private              ArrayList<Movie> likedMovies;
+    private              ArrayList<Movie> ratedMovies;
 
     public User(final Credentials source) {
         this.credentials = new Credentials(source);
         this.tokensCount = 0;
-        this.numFreePremiumMovies = 15;
+        this.numFreePremiumMovies = MAX_FREE_PREMIUM_MOVIES;
         this.purchasedMovies = new ArrayList<>();
         this.watchedMovies = new ArrayList<>();
         this.likedMovies = new ArrayList<>();
@@ -49,62 +50,111 @@ public class User {
         }
     }
 
+    /**
+     * @return the credentials of the user
+     */
     public Credentials getCredentials() {
         return credentials;
     }
 
-    public void setCredentials(Credentials credentials) {
+    /**
+     * @param credentials the new credentials of the user
+     */
+    public void setCredentials(final Credentials credentials) {
         this.credentials = credentials;
     }
 
+    /**
+     * @return the number of tokens of the user
+     */
     public int getTokensCount() {
         return tokensCount;
     }
 
-    public void setTokensCount(int tokensCount) {
+    /**
+     * @param tokensCount the new number of tokens of the user
+     */
+    public void setTokensCount(final int tokensCount) {
         this.tokensCount = tokensCount;
     }
 
+    /**
+     * @return the number of free premium movies for the user
+     */
     public int getNumFreePremiumMovies() {
         return numFreePremiumMovies;
     }
 
-    public void setNumFreePremiumMovies(int numFreePremiumMovies) {
+    /**
+     * @param numFreePremiumMovies the new number of free premium movies for the
+     *                             user
+     */
+    public void setNumFreePremiumMovies(final int numFreePremiumMovies) {
         this.numFreePremiumMovies = numFreePremiumMovies;
     }
 
+    /**
+     * @return the list of purchased movies of the user
+     */
     public ArrayList<Movie> getPurchasedMovies() {
         return purchasedMovies;
     }
 
-    public void setPurchasedMovies(ArrayList<Movie> purchasedMovies) {
+    /**
+     * @param purchasedMovies the new list of purchased movies of the user
+     */
+    public void setPurchasedMovies(final ArrayList<Movie> purchasedMovies) {
         this.purchasedMovies = purchasedMovies;
     }
 
+    /**
+     * @return the list of watched movies of the user
+     */
     public ArrayList<Movie> getWatchedMovies() {
         return watchedMovies;
     }
 
-    public void setWatchedMovies(ArrayList<Movie> watchedMovies) {
+    /**
+     * @param watchedMovies the new list of watched movies of the user
+     */
+    public void setWatchedMovies(final ArrayList<Movie> watchedMovies) {
         this.watchedMovies = watchedMovies;
     }
 
+    /**
+     * @return the list of liked movies of the user
+     */
     public ArrayList<Movie> getLikedMovies() {
         return likedMovies;
     }
 
-    public void setLikedMovies(ArrayList<Movie> likedMovies) {
+    /**
+     * @param likedMovies the new list of liked movies of the user
+     */
+    public void setLikedMovies(final ArrayList<Movie> likedMovies) {
         this.likedMovies = likedMovies;
     }
 
+    /**
+     * @return the list of rated movies of the user
+     */
     public ArrayList<Movie> getRatedMovies() {
         return ratedMovies;
     }
 
-    public void setRatedMovies(ArrayList<Movie> ratedMovies) {
+    /**
+     * @param ratedMovies the new list of rated movies of the user
+     */
+    public void setRatedMovies(final ArrayList<Movie> ratedMovies) {
         this.ratedMovies = ratedMovies;
     }
 
+    /**
+     * Try to purchase the given movie.
+     *
+     * @param movie the movie to be added to the list of purchased movies
+     * @return true if the movie was added, false otherwise
+     */
     public boolean addPurchasedMovie(final Movie movie) {
         if (this.numFreePremiumMovies > 0 && credentials.isPremium()) {
             this.numFreePremiumMovies--;
@@ -118,14 +168,29 @@ public class User {
         return true;
     }
 
+    /**
+     * Watch the given movie.
+     *
+     * @param movie the movie to be added to the list of watched movies
+     */
     public void addWatchedMovie(final Movie movie) {
         this.watchedMovies.add(movie);
     }
 
+    /**
+     * Like the given movie.
+     *
+     * @param movie the movie to be added to the list of liked movies
+     */
     public void addLikedMovie(final Movie movie) {
         this.likedMovies.add(movie);
     }
 
+    /**
+     * Rate the given movie.
+     *
+     * @param movie the movie to be added to the rated movies list
+     */
     public void addRatedMovie(final Movie movie) {
         this.ratedMovies.add(movie);
     }

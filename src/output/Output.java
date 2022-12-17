@@ -5,13 +5,15 @@ import user.User;
 
 import java.util.ArrayList;
 
-public class Output {
+public final class Output {
     private static final String           ERROR = "Error";
     private              String           error;
     private              ArrayList<Movie> currentMoviesList;
     private              User             currentUser;
 
-    public Output(String error, ArrayList<Movie> currentMoviesList, User currentUser) {
+    public Output(
+            final String error, final ArrayList<Movie> currentMoviesList, final User currentUser
+                 ) {
         this.error = error;
 
         if (currentMoviesList != null) {
@@ -31,31 +33,52 @@ public class Output {
         }
     }
 
+    /**
+     * @return the default error output
+     */
     public static Output genErrorOutput() {
         return new Output(ERROR, new ArrayList<>(), null);
     }
 
+    /**
+     * @return the error
+     */
     public String getError() {
         return error;
     }
 
-    public void setError(String error) {
+    /**
+     * @param error the error to set
+     */
+    public void setError(final String error) {
         this.error = error;
     }
 
+    /**
+     * @return the current list of movies to be displayed
+     */
     public ArrayList<Movie> getCurrentMoviesList() {
         return currentMoviesList;
     }
 
-    public void setCurrentMoviesList(ArrayList<Movie> currentMoviesList) {
+    /**
+     * @param currentMoviesList the new list of movies to be displayed
+     */
+    public void setCurrentMoviesList(final ArrayList<Movie> currentMoviesList) {
         this.currentMoviesList = currentMoviesList;
     }
 
+    /**
+     * @return the current user to be displayed
+     */
     public User getCurrentUser() {
         return currentUser;
     }
 
-    public void setCurrentUser(User currentUser) {
+    /**
+     * @param currentUser the new user to be displayed
+     */
+    public void setCurrentUser(final User currentUser) {
         this.currentUser = currentUser;
     }
 }
