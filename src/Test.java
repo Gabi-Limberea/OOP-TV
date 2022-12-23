@@ -6,19 +6,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 class Config {
-    private String         homework;
-    private String         description;
-    private Integer        checkstyleScore;
-    private Integer        homeworkDesignScore;
-    private Integer        readmeScore;
+    private String homework;
+    private String description;
+    private Integer checkstyleScore;
+    private Integer homeworkDesignScore;
+    private Integer readmeScore;
     private List<TestType> testTypes;
 
     public String getHomework() {
@@ -72,7 +67,7 @@ class Config {
 
 class TestType {
     private Integer score;
-    private String  type;
+    private String type;
 
     public Integer getScore() {
         return score;
@@ -92,20 +87,19 @@ class TestType {
 }
 
 public final class Test {
-    private static final String IN_FOLDER                = "in/";
-    private static final String REF_FOLDER               = "ref/";
+    private static final String IN_FOLDER = "in/";
+    private static final String REF_FOLDER = "ref/";
     private static final String CHECKER_RESOURCES_FOLDER = "checker/resources/";
-    private static final File   TEST_INPUTS_FILE         = new File(
-            CHECKER_RESOURCES_FOLDER + IN_FOLDER);
+    private static final File TEST_INPUTS_FILE = new File(CHECKER_RESOURCES_FOLDER + IN_FOLDER);
 
-    private static final String OUT_FILE      = "results.out";
-    private static final File   TEST_OUT_FILE = new File(OUT_FILE);
+    private static final String OUT_FILE = "results.out";
+    private static final File TEST_OUT_FILE = new File(OUT_FILE);
 
     private static final File CONFIG_FILE = new File(CHECKER_RESOURCES_FOLDER + "config.json");
 
-    private static final int MAX_MILLISECONDS_PER_TEST = 1000;
+    private static final int MAX_MILLISECONDS_PER_TEST = 100;
 
-    private static int score      = 0;
+    private static int score = 0;
     private static int totalScore = 0;
 
     private Test() {
@@ -124,6 +118,7 @@ public final class Test {
 
     private static Config loadConfig() {
         ObjectMapper objectMapper = new ObjectMapper();
+
         try {
             return objectMapper.readValue(CONFIG_FILE, Config.class);
         } catch (IOException e) {
@@ -144,28 +139,28 @@ public final class Test {
 
             preTestCleanUp();
 
-            final String[] testArgv = createTestArgv(testFile);
+            final String[] testArgv = createTestArgv(testFile, testFileName);
             final Future<Object> future = createTimerTask(testArgv);
 
             runTest(testFileName, config, future);
         }
 
         score += Checkstyle.testCheckstyle();
+
         System.out.println("Total score: .......................... " + score + "/" + totalScore);
-        System.out.println("Up to " + manualScore
-                           + " points will be awarded manually by the teaching assistants."
-                           + " (README & OOP design)");
+        System.out.println("Up to "
+                + manualScore
+                + " points will be awarded manually by the teaching assistants."
+                + " (README & OOP design)");
         System.out.println("This value can be exceeded for great implementations.");
     }
 
-    private static void runTest(
-            final String testFileName, final Config config, final Future<Object> task
-                               ) {
+    private static void runTest(final String testFileName, final Config config, final Future<Object> task) {
         ObjectMapper objectMapper = new ObjectMapper();
         File refFile = new File(CHECKER_RESOURCES_FOLDER + REF_FOLDER + testFileName);
 
         try {
-            task.get(MAX_MILLISECONDS_PER_TEST, TimeUnit.MILLISECONDS);
+            task.get(MAX_MILLISECONDS_PER_TEST, TimeUnit.MINUTES);
         } catch (TimeoutException e) {
             printMessage(testFileName, "Timeout");
             return;
@@ -208,10 +203,10 @@ public final class Test {
         return executor.submit(task);
     }
 
-    private static String[] createTestArgv(final File testFile) {
+    private static String[] createTestArgv(final File testFile, String testFileName) {
         List<String> listArgv = new ArrayList<>();
         listArgv.add(testFile.getAbsolutePath());
-        listArgv.add(OUT_FILE);
+        listArgv.add(CHECKER_RESOURCES_FOLDER + REF_FOLDER + testFileName);
         String[] argv = new String[0];
         return listArgv.toArray(argv);
     }
@@ -220,15 +215,11 @@ public final class Test {
         TEST_OUT_FILE.delete();
     }
 
-    private static void printMessage(
-            final String testFileName, final String message
-                                    ) {
+    private static void printMessage(final String testFileName, final String message) {
         printMessage(testFileName, message, false);
     }
 
-    private static void printMessage(
-            final String testFileName, final String message, final boolean trail
-                                    ) {
+    private static void printMessage(final String testFileName, final String message, final boolean trail) {
         String fileName = testFileName.split("\\.")[0];
         if (trail) {
             System.out.println("[" + fileName + "]: ..................... " + message);
@@ -237,9 +228,7 @@ public final class Test {
         }
     }
 
-    private static int testMaxScore(
-            final Config config, final String testFileName
-                                   ) {
+    private static int testMaxScore(final Config config, final String testFileName) {
         for (TestType testType : config.getTestTypes()) {
             if (testFileName.contains(testType.getType())) {
                 return testType.getScore();
