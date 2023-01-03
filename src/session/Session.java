@@ -4,52 +4,71 @@ import input.ActionInput;
 import input.MovieInput;
 import input.UserInput;
 import movie.Movie;
+import movie.MovieDatabase;
 import output.Output;
 import page.Page;
 import page.PageActionStrategy;
 import page.PageFactory;
 import page.PageTypes;
+import page.types.MovieDetailsPage;
+import stack.Stack;
+import subscription.SubscriptionManager;
 import user.User;
 
 import java.util.ArrayList;
 
 public final class Session {
-    private ArrayList<User> registeredUsers;
-    private ArrayList<Movie> availableMoviesForUser;
-    private ArrayList<Movie> availableMovies;
-    private User currentUser;
-    private Page currentPage;
+    private User                currentUser;
+    private Page                currentPage;
+    private ArrayList<User>     registeredUsers;
+    private MovieDatabase       moviesDatabase;
+    private ArrayList<Movie>    moviesOnPage;
+    private Stack<Page>         history;
+    private SubscriptionManager subscriptionManager;
 
     public Session(
             final ArrayList<UserInput> registeredUsers, final ArrayList<MovieInput> availableMovies
                   ) {
         currentPage = PageFactory.getPage(PageTypes.UNAUTHORIZED_HOME_PAGE.getTitle(), null, null);
         this.registeredUsers = new ArrayList<>();
-        this.availableMovies = new ArrayList<>();
-        this.currentUser = null;
+        moviesDatabase = new MovieDatabase(availableMovies);
+        currentUser = null;
+        moviesOnPage = new ArrayList<>();
+        history = new Stack<>();
 
         for (UserInput user : registeredUsers) {
             this.registeredUsers.add(new User(user.getCredentials()));
         }
 
-        for (MovieInput movie : availableMovies) {
-            this.availableMovies.add(new Movie(movie));
-        }
+        subscriptionManager = new SubscriptionManager();
     }
 
     /**
-     * @return the list of available movies for the current user
+     * @return the subscription manager for this session
      */
-    public ArrayList<Movie> getAvailableMoviesForUser() {
-        return availableMoviesForUser;
+    public SubscriptionManager getSubscriptionManager() {
+        return subscriptionManager;
     }
 
     /**
-     * @param availableMoviesForUser the new list of available movies for the
-     *                               current user
+     * @param subscriptionManager the new subscription manager for this session
      */
-    public void setAvailableMoviesForUser(final ArrayList<Movie> availableMoviesForUser) {
-        this.availableMoviesForUser = availableMoviesForUser;
+    public void setSubscriptionManager(final SubscriptionManager subscriptionManager) {
+        this.subscriptionManager = subscriptionManager;
+    }
+
+    /**
+     * @return the pages that the user has visited
+     */
+    public Stack<Page> getHistory() {
+        return history;
+    }
+
+    /**
+     * @param history the new pages that the user has visited
+     */
+    public void setHistory(final Stack<Page> history) {
+        this.history = history;
     }
 
     /**
@@ -67,17 +86,31 @@ public final class Session {
     }
 
     /**
-     * @return the list of available movies on the platform
+     * @return the movies shown on the current page
      */
-    public ArrayList<Movie> getAvailableMovies() {
-        return availableMovies;
+    public ArrayList<Movie> getMoviesOnPage() {
+        return moviesOnPage;
     }
 
     /**
-     * @param availableMovies the new list of available movies on the platform
+     * @param moviesOnPage the new movies to be shown on the current page
      */
-    public void setAvailableMovies(final ArrayList<Movie> availableMovies) {
-        this.availableMovies = availableMovies;
+    public void setMoviesOnPage(final ArrayList<Movie> moviesOnPage) {
+        this.moviesOnPage = moviesOnPage;
+    }
+
+    /**
+     * @return the list of available movies on the platform
+     */
+    public MovieDatabase getMoviesDatabase() {
+        return moviesDatabase;
+    }
+
+    /**
+     * @param moviesDatabase the new list of available movies on the platform
+     */
+    public void setMoviesDatabase(final MovieDatabase moviesDatabase) {
+        this.moviesDatabase = moviesDatabase;
     }
 
     /**
@@ -118,7 +151,7 @@ public final class Session {
         for (ActionInput action : actions) {
             if (ActionTypes.getActionType(action.getType()) == ActionTypes.CHANGE_PAGE) {
                 Page newPage = currentPage.changePage(PageTypes.getPageType(action.getPage()),
-                                                      action.getMovie(), this.availableMoviesForUser
+                                                      action.getMovie(), moviesOnPage
                                                      );
 
                 if (newPage == null) {
@@ -127,10 +160,15 @@ public final class Session {
                     continue;
                 }
 
+                if (PageTypes.canAddToHistory(currentPage.getTitle())) {
+                    history.push(currentPage);
+                }
+
                 currentPage = newPage;
 
                 if (PageTypes.getPageType(action.getPage()) == PageTypes.LOGOUT) {
                     currentUser = null;
+                    history.clear();
                 }
 
                 Output outputOnPageChange = currentPage.updateOnPageChange(this);
@@ -150,7 +188,53 @@ public final class Session {
                 if (actionOutput != null) {
                     outputs.add(actionOutput);
                 }
+            } else if (ActionTypes.getActionType(action.getType()) == ActionTypes.BACK) {
+                if (history.isEmpty()) {
+                    outputs.add(Output.genErrorOutput());
+                    continue;
+                }
+
+                Page backPage;
+                Page dummyPage = history.pop();
+                PageTypes dummyPageType = PageTypes.getPageType(dummyPage.getTitle());
+
+                if (dummyPageType == PageTypes.MOVIE_DETAILS) {
+                    MovieDetailsPage detailPage = (MovieDetailsPage) dummyPage;
+
+                    backPage = currentPage.changePage(dummyPageType, detailPage.getMovieTitle(),
+                                                      moviesOnPage
+                                                     );
+                } else {
+                    backPage = currentPage.changePage(dummyPageType, null, moviesOnPage);
+                }
+
+                if (backPage == null) {
+                    outputs.add(Output.genErrorOutput());
+
+                    continue;
+                }
+
+                currentPage = backPage;
+
+                Output outputOnPageChange = currentPage.updateOnPageChange(this);
+
+                if (outputOnPageChange != null) {
+                    outputs.add(outputOnPageChange);
+                }
+            } else if (ActionTypes.getActionType(action.getType()) == ActionTypes.DATABASE) {
+                Output actionOutput = moviesDatabase.modifyDatabase(action, subscriptionManager,
+                                                                    registeredUsers
+                                                                   );
+
+                if (actionOutput != null) {
+                    outputs.add(actionOutput);
+                }
             }
+        }
+
+        if (currentUser != null && currentUser.getCredentials().isPremium()) {
+            subscriptionManager.sendRecommendation(currentUser);
+            outputs.add(new Output(null, null, currentUser));
         }
 
         return outputs;

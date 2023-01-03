@@ -169,9 +169,9 @@ public final class Filter {
          */
         private int sortByRating(final Movie movie1, final Movie movie2) {
             if (SortType.getSortType(this.rating) == SortType.ASCENDING) {
-                return Double.compare(movie2.getRating(), movie1.getRating());
-            } else {
                 return Double.compare(movie1.getRating(), movie2.getRating());
+            } else {
+                return Double.compare(movie2.getRating(), movie1.getRating());
             }
         }
     }

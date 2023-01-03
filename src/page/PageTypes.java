@@ -38,6 +38,13 @@ public enum PageTypes {
         };
     }
 
+    public static boolean canAddToHistory(final String title) {
+        return switch (Objects.requireNonNull(getPageType(title))) {
+            case LOGIN, REGISTER, UNAUTHORIZED_HOME_PAGE, LOGOUT -> false;
+            default -> true;
+        };
+    }
+
     public String getTitle() {
         return title;
     }

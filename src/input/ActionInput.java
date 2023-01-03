@@ -13,6 +13,52 @@ public final class ActionInput {
     private int         rate;
     private Filter      filters;
     private String      movie;
+    private MovieInput  addedMovie;
+    private String deletedMovie;
+    private String      subscribedGenre;
+
+    /**
+     * @return the movie to be deleted
+     */
+    public String getDeletedMovie() {
+        return deletedMovie;
+    }
+
+    /**
+     * @param deletedMovie the new movie to be deleted
+     */
+    public void setDeletedMovie(final String deletedMovie) {
+        this.deletedMovie = deletedMovie;
+    }
+
+    /**
+     * @return the genre to which to subscribe
+     */
+    public String getSubscribedGenre() {
+        return subscribedGenre;
+    }
+
+    /**
+     * @param subscribedGenre the new genre to which to subscribe
+     */
+    public void setSubscribedGenre(final String subscribedGenre) {
+        this.subscribedGenre = subscribedGenre;
+    }
+
+    /**
+     * @return the movie to be added
+     */
+    public MovieInput getAddedMovie() {
+        return addedMovie;
+    }
+
+
+    /**
+     * @param addedMovie the new movie to be added
+     */
+    public void setAddedMovie(final MovieInput addedMovie) {
+        this.addedMovie = addedMovie;
+    }
 
     /**
      * @return the name of the movie

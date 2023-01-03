@@ -20,6 +20,7 @@ public final class UpgradesPage extends Page implements PageActionStrategy {
         connectedPages.add(PageTypes.AUTHORIZED_HOME_PAGE);
         connectedPages.add(PageTypes.MOVIES);
         connectedPages.add(PageTypes.LOGOUT);
+        connectedPages.add(PageTypes.UPGRADES);
 
         super.setConnectedPages(connectedPages);
     }

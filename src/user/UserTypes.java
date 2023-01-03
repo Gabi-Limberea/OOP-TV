@@ -25,6 +25,6 @@ public enum UserTypes {
 
     @Override
     public String toString() {
-        return this.name;
+        return name;
     }
 }

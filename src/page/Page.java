@@ -12,7 +12,7 @@ public abstract class Page {
 
     public Page(final String title) {
         this.title = title;
-        this.connectedPages = new ArrayList<>();
+        connectedPages = new ArrayList<>();
     }
 
     /**

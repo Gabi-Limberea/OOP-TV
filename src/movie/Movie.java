@@ -6,62 +6,64 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import input.MovieInput;
+import user.User;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public final class Movie {
-    public static final int                MAX_RATING = 5;
-    private             String             name;
-    private             int                year;
-    private             int                duration;
-    private             ArrayList<String>  genres;
-    private             ArrayList<String>  actors;
-    private             ArrayList<String>  countriesBanned;
-    private             int                numLikes;
-    private             int                numRatings;
+    public static final int                    MAX_RATING = 5;
+    private             String                 name;
+    private             String                 year;
+    private             int                    duration;
+    private             ArrayList<String>      genres;
+    private             ArrayList<String>      actors;
+    private             ArrayList<String>      countriesBanned;
+    private             int                    numLikes;
+    private             int                    numRatings;
     @JsonSerialize(using = RatingSerializer.class)
-    private             double             rating;
+    private             double                 rating;
     @JsonIgnore
-    private             ArrayList<Integer> ratings;
+    private             HashMap<User, Integer> ratings;
 
     public Movie(final MovieInput source) {
-        this.name = source.getName();
-        this.year = source.getYear();
-        this.duration = source.getDuration();
-        this.genres = source.getGenres();
-        this.actors = source.getActors();
-        this.countriesBanned = source.getCountriesBanned();
-        this.rating = 0.00f;
-        this.numLikes = 0;
-        this.numRatings = 0;
-        this.ratings = new ArrayList<>();
+        name = source.getName();
+        year = String.valueOf(source.getYear());
+        duration = source.getDuration();
+        genres = source.getGenres();
+        actors = source.getActors();
+        countriesBanned = source.getCountriesBanned();
+        rating = 0.00f;
+        numLikes = 0;
+        numRatings = 0;
+        ratings = new HashMap<>();
     }
 
     public Movie(final Movie source) {
-        this.name = source.getName();
-        this.year = source.getYear();
-        this.duration = source.getDuration();
-        this.genres = new ArrayList<>(source.getGenres());
-        this.actors = new ArrayList<>(source.getActors());
-        this.countriesBanned = new ArrayList<>(source.getCountriesBanned());
-        this.rating = source.getRating();
-        this.numLikes = source.getNumLikes();
-        this.numRatings = source.getNumRatings();
-        this.ratings = new ArrayList<>(source.getRatings());
+        name = source.getName();
+        year = source.getYear();
+        duration = source.getDuration();
+        genres = new ArrayList<>(source.getGenres());
+        actors = new ArrayList<>(source.getActors());
+        countriesBanned = new ArrayList<>(source.getCountriesBanned());
+        rating = source.getRating();
+        numLikes = source.getNumLikes();
+        numRatings = source.getNumRatings();
+        ratings = new HashMap<>(source.getRatings());
     }
 
     /**
      * @return the list of ratings that the movie has received
      */
-    public ArrayList<Integer> getRatings() {
+    public HashMap<User, Integer> getRatings() {
         return ratings;
     }
 
     /**
      * @param ratings the new list of ratings that the movie has received
      */
-    public void setRatings(final ArrayList<Integer> ratings) {
+    public void setRatings(final HashMap<User, Integer> ratings) {
         this.ratings = ratings;
     }
 
@@ -82,14 +84,14 @@ public final class Movie {
     /**
      * @return the year in which the movie was released
      */
-    public int getYear() {
+    public String getYear() {
         return year;
     }
 
     /**
      * @param year the new year in which the movie was released
      */
-    public void setYear(final int year) {
+    public void setYear(final String year) {
         this.year = year;
     }
 
@@ -211,16 +213,19 @@ public final class Movie {
      *
      * @param newRating the new rating to be added to the movie
      */
-    public void addRating(final int newRating) {
-        this.ratings.add(newRating);
-        numRatings++;
+    public void addRating(final int newRating, final User user) {
+        Integer oldValue = ratings.put(user, newRating);
 
-        double sum = 0;
-        for (int i = 0; i < numRatings; i++) {
-            sum += this.ratings.get(i);
+        if (oldValue == null) {
+            numRatings++;
         }
 
-        this.rating = sum / numRatings;
+        double sum = 0;
+        for (Integer dummyRating : ratings.values()) {
+            sum += dummyRating;
+        }
+
+        rating = sum / numRatings;
     }
 
     private static class RatingSerializer extends JsonSerializer<Double> {

@@ -33,14 +33,8 @@ public final class MoviesPage extends Page implements PageActionStrategy {
      */
     @Override
     public Output updateOnPageChange(final Session session) {
-        ArrayList<Movie> moviesAvailableForUser = new ArrayList<>(session.getAvailableMovies());
-
-        moviesAvailableForUser.removeIf(
-                movie -> movie.isBanned(session.getCurrentUser().getCredentials().getCountry()));
-
-        session.setAvailableMoviesForUser(moviesAvailableForUser);
-
-        return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
+        session.setMoviesOnPage(session.getCurrentUser().getAvailableMovies());
+        return new Output(null, session.getMoviesOnPage(), session.getCurrentUser());
     }
 
     /**
@@ -75,7 +69,7 @@ public final class MoviesPage extends Page implements PageActionStrategy {
     private Output search(final Session session, final ActionInput action) {
         ArrayList<Movie> currentMoviesList = new ArrayList<>();
 
-        for (Movie movie : session.getAvailableMoviesForUser()) {
+        for (Movie movie : session.getCurrentUser().getAvailableMovies()) {
             if (movie.getName().startsWith(action.getStartsWith())) {
                 currentMoviesList.add(movie);
             }
@@ -92,17 +86,15 @@ public final class MoviesPage extends Page implements PageActionStrategy {
      * @return the appropriate output
      */
     private Output filter(final Session session, final ActionInput action) {
-        ArrayList<Movie> allMoviesAvailableForUser = new ArrayList<>(session.getAvailableMovies());
-
-        allMoviesAvailableForUser.removeIf(
-                movie -> movie.isBanned(session.getCurrentUser().getCredentials().getCountry()));
+        ArrayList<Movie> allMoviesAvailableForUser = new ArrayList<>(
+                session.getCurrentUser().getAvailableMovies());
 
         ArrayList<Movie> filteredMovies = action.getFilters().applyFilter(
                 allMoviesAvailableForUser);
 
-        session.setAvailableMoviesForUser(filteredMovies);
+        session.setMoviesOnPage(filteredMovies);
 
-        return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
+        return new Output(null, session.getMoviesOnPage(), session.getCurrentUser());
     }
 
     protected enum Actions {

@@ -22,7 +22,9 @@ public final class Main {
 
         Session session = new Session(input.getUsers(), input.getMovies());
         ArrayList<Output> output = new ArrayList<>(session.runSession(input.getActions()));
+        String outputString = args[0].replace("/in/", "/out/");
 
         mapper.writerWithDefaultPrettyPrinter().writeValue(new File(args[1]), output);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(new File(outputString), output);
     }
 }

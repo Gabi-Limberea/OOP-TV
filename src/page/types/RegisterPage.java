@@ -9,6 +9,8 @@ import page.PageTypes;
 import session.Session;
 import user.User;
 
+import java.util.ArrayList;
+
 public final class RegisterPage extends Page implements PageActionStrategy {
     private static RegisterPage instance = null;
 
@@ -83,9 +85,10 @@ public final class RegisterPage extends Page implements PageActionStrategy {
         session.setCurrentPage(
                 PageFactory.getPage(PageTypes.AUTHORIZED_HOME_PAGE.getTitle(), null, null));
         session.setCurrentUser(newUser);
+        session.getMoviesDatabase().findAvailableMoviesForUser(newUser);
+        newUser.setFirstLogin(true);
 
-        return new Output(
-                null, session.getCurrentUser().getPurchasedMovies(), session.getCurrentUser());
+        return new Output(null, new ArrayList<>(), session.getCurrentUser());
     }
 
 

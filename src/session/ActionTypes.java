@@ -1,7 +1,8 @@
 package session;
 
 public enum ActionTypes {
-    CHANGE_PAGE("change page"), ON_PAGE("on page");
+    CHANGE_PAGE("change page"), ON_PAGE("on page"), DATABASE("database"),
+    BACK("back"), NONE("none");
 
     private final String name;
 
@@ -20,6 +21,6 @@ public enum ActionTypes {
             }
         }
 
-        return null;
+        return NONE;
     }
 }

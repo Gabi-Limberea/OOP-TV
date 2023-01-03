@@ -23,6 +23,7 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
         connectedPages.add(PageTypes.AUTHORIZED_HOME_PAGE);
         connectedPages.add(PageTypes.UPGRADES);
         connectedPages.add(PageTypes.LOGOUT);
+        connectedPages.add(PageTypes.MOVIE_DETAILS);
 
         super.setConnectedPages(connectedPages);
     }
@@ -38,7 +39,7 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
     public Output updateOnPageChange(final Session session) {
         ArrayList<Movie> focusedMovies = new ArrayList<>();
 
-        for (Movie movie : session.getAvailableMovies()) {
+        for (Movie movie : session.getCurrentUser().getAvailableMovies()) {
             if (movie.getName().equals(this.movieTitle)) {
                 focusedMovies.add(movie);
             }
@@ -48,8 +49,8 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
             return Output.genErrorOutput();
         }
 
-        session.setAvailableMoviesForUser(focusedMovies);
-        return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
+        session.setMoviesOnPage(focusedMovies);
+        return new Output(null, session.getMoviesOnPage(), session.getCurrentUser());
     }
 
     /**
@@ -68,6 +69,7 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
             case WATCH -> watch(session);
             case LIKE -> like(session);
             case RATE -> rate(session, action);
+            case SUBSCRIBE -> subscribe(session, action);
             default -> Output.genErrorOutput();
         };
     }
@@ -81,7 +83,7 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
      * @return the appropriate output
      */
     public Output purchase(final Session session) {
-        Movie movie = session.getAvailableMoviesForUser().get(0);
+        Movie movie = session.getMoviesOnPage().get(0);
 
         if (session.getCurrentUser().getPurchasedMovies().contains(movie)) {
             return Output.genErrorOutput();
@@ -91,7 +93,7 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
             return Output.genErrorOutput();
         }
 
-        return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
+        return new Output(null, session.getMoviesOnPage(), session.getCurrentUser());
     }
 
     /**
@@ -102,12 +104,12 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
      * @return the appropriate output
      */
     public Output watch(final Session session) {
-        Movie movie = session.getAvailableMoviesForUser().get(0);
+        Movie movie = session.getMoviesOnPage().get(0);
 
         if (session.getCurrentUser().getPurchasedMovies().contains(movie)) {
             session.getCurrentUser().addWatchedMovie(movie);
 
-            return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
+            return new Output(null, session.getMoviesOnPage(), session.getCurrentUser());
         }
 
         return Output.genErrorOutput();
@@ -122,14 +124,14 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
      * @return the appropriate output
      */
     public Output like(final Session session) {
-        Movie movie = session.getAvailableMoviesForUser().get(0);
+        Movie movie = session.getMoviesOnPage().get(0);
 
         if (session.getCurrentUser().getPurchasedMovies().contains(movie)
             && session.getCurrentUser().getWatchedMovies().contains(movie)) {
             session.getCurrentUser().addLikedMovie(movie);
             movie.addLike();
 
-            return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
+            return new Output(null, session.getMoviesOnPage(), session.getCurrentUser());
         }
 
         return Output.genErrorOutput();
@@ -145,24 +147,57 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
      * @return the appropriate output
      */
     public Output rate(final Session session, final ActionInput action) {
-        Movie movie = session.getAvailableMoviesForUser().get(0);
+        Movie movie = session.getMoviesOnPage().get(0);
 
         if (session.getCurrentUser().getWatchedMovies().contains(movie)) {
             if (action.getRate() > Movie.MAX_RATING || action.getRate() < 1) {
                 return Output.genErrorOutput();
             }
 
-            movie.addRating(action.getRate());
+            movie.addRating(action.getRate(), session.getCurrentUser());
             session.getCurrentUser().addRatedMovie(movie);
 
-            return new Output(null, session.getAvailableMoviesForUser(), session.getCurrentUser());
+            return new Output(null, session.getMoviesOnPage(), session.getCurrentUser());
         }
 
         return Output.genErrorOutput();
     }
 
+    /**
+     * Try to subscribe to one of the current movie's genres.
+     * Will return error output if the user already has a subscription to that
+     * genre or if the movie is not part of that genre.
+     *
+     * @param session the session in which the action is executed
+     * @param action  the action to be executed
+     * @return the appropriate output
+     */
+    public Output subscribe(final Session session, final ActionInput action) {
+        Movie movie = session.getMoviesOnPage().get(0);
+
+        if (!movie.getGenres().contains(action.getSubscribedGenre())
+            || session.getSubscriptionManager().isSubscribed(action.getSubscribedGenre(),
+                                                             session.getCurrentUser()
+                                                            )) {
+            return Output.genErrorOutput();
+        }
+
+        session.getCurrentUser().subscribeTo(
+                action.getSubscribedGenre(), session.getSubscriptionManager());
+
+        return null;
+    }
+
+    /**
+     * @return the title of the movie accessed on this page
+     */
+    public String getMovieTitle() {
+        return movieTitle;
+    }
+
     protected enum Actions {
-        PURCHASE("purchase"), WATCH("watch"), LIKE("like"), RATE("rate");
+        PURCHASE("purchase"), WATCH("watch"), LIKE("like"), RATE("rate"), SUBSCRIBE("subscribe"),
+        NONE("none");
 
         private final String action;
 
@@ -177,7 +212,7 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
                 }
             }
 
-            return null;
+            return NONE;
         }
     }
 }

@@ -12,11 +12,11 @@ public final class Credentials {
     private String balance;
 
     public Credentials() {
-        this.name = "";
-        this.password = "";
-        this.accountType = "";
-        this.country = "";
-        this.balance = "";
+        name = "";
+        password = "";
+        accountType = "";
+        country = "";
+        balance = "";
     }
 
     public Credentials(
@@ -31,11 +31,11 @@ public final class Credentials {
     }
 
     public Credentials(final Credentials source) {
-        this.name = source.name;
-        this.password = source.password;
-        this.accountType = source.accountType;
-        this.country = source.country;
-        this.balance = source.balance;
+        name = source.name;
+        password = source.password;
+        accountType = source.accountType;
+        country = source.country;
+        balance = source.balance;
     }
 
     /**
@@ -130,6 +130,6 @@ public final class Credentials {
      */
     @JsonIgnore
     public boolean isPremium() {
-        return UserTypes.getUserType(this.accountType) == UserTypes.PREMIUM;
+        return UserTypes.getUserType(accountType) == UserTypes.PREMIUM;
     }
 }

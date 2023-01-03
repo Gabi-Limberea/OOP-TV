@@ -1,53 +1,121 @@
 package user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import movie.Movie;
+import notification.Notification;
+import subscription.SubscriptionManager;
 
 import java.util.ArrayList;
 
 public final class User {
-    private static final int              MAX_FREE_PREMIUM_MOVIES = 15;
-    private              Credentials      credentials;
-    private              int              tokensCount;
-    private              int              numFreePremiumMovies;
-    private              ArrayList<Movie> purchasedMovies;
-    private              ArrayList<Movie> watchedMovies;
-    private              ArrayList<Movie> likedMovies;
-    private              ArrayList<Movie> ratedMovies;
+    private static final int                     MAX_FREE_PREMIUM_MOVIES = 15;
+    private              Credentials             credentials;
+    private              int                     tokensCount;
+    private              int                     numFreePremiumMovies;
+    @JsonIgnore
+    private              boolean                 firstLogin;
+    private              ArrayList<Movie>        purchasedMovies;
+    private              ArrayList<Movie>        watchedMovies;
+    private              ArrayList<Movie>        likedMovies;
+    private              ArrayList<Movie>        ratedMovies;
+    private              ArrayList<Notification> notifications;
+    @JsonIgnore
+    private              ArrayList<Movie>        availableMovies;
 
     public User(final Credentials source) {
-        this.credentials = new Credentials(source);
-        this.tokensCount = 0;
-        this.numFreePremiumMovies = MAX_FREE_PREMIUM_MOVIES;
-        this.purchasedMovies = new ArrayList<>();
-        this.watchedMovies = new ArrayList<>();
-        this.likedMovies = new ArrayList<>();
-        this.ratedMovies = new ArrayList<>();
+        credentials = new Credentials(source);
+        tokensCount = 0;
+        numFreePremiumMovies = MAX_FREE_PREMIUM_MOVIES;
+        purchasedMovies = new ArrayList<>();
+        watchedMovies = new ArrayList<>();
+        likedMovies = new ArrayList<>();
+        ratedMovies = new ArrayList<>();
+        availableMovies = new ArrayList<>();
+        notifications = new ArrayList<>();
+        firstLogin = false;
     }
 
     public User(final User source) {
-        this.credentials = new Credentials(source.getCredentials());
-        this.tokensCount = source.getTokensCount();
-        this.numFreePremiumMovies = source.getNumFreePremiumMovies();
+        credentials = new Credentials(source.getCredentials());
+        tokensCount = source.getTokensCount();
+        numFreePremiumMovies = source.getNumFreePremiumMovies();
 
-        this.purchasedMovies = new ArrayList<>();
+        purchasedMovies = new ArrayList<>();
         for (Movie movie : source.getPurchasedMovies()) {
-            this.purchasedMovies.add(new Movie(movie));
+            purchasedMovies.add(new Movie(movie));
         }
 
-        this.watchedMovies = new ArrayList<>();
+        watchedMovies = new ArrayList<>();
         for (Movie movie : source.getWatchedMovies()) {
-            this.watchedMovies.add(new Movie(movie));
+            watchedMovies.add(new Movie(movie));
         }
 
-        this.likedMovies = new ArrayList<>();
+        likedMovies = new ArrayList<>();
         for (Movie movie : source.getLikedMovies()) {
-            this.likedMovies.add(new Movie(movie));
+            likedMovies.add(new Movie(movie));
         }
 
-        this.ratedMovies = new ArrayList<>();
+        ratedMovies = new ArrayList<>();
         for (Movie movie : source.getRatedMovies()) {
-            this.ratedMovies.add(new Movie(movie));
+            ratedMovies.add(new Movie(movie));
         }
+
+        if (source.firstLogin) {
+            availableMovies = new ArrayList<>();
+            for (Movie movie : source.getAvailableMovies()) {
+                availableMovies.add(new Movie(movie));
+            }
+
+            firstLogin = true;
+        }
+
+        notifications = new ArrayList<>();
+        for (Notification notification : source.getNotifications()) {
+            notifications.add(new Notification(notification));
+        }
+    }
+
+    /**
+     * @return true if the user has logged in for the first time
+     */
+    public boolean isFirstLogin() {
+        return firstLogin;
+    }
+
+    /**
+     * @param firstLogin update whether the user has logged in for the first
+     *                   time
+     */
+    public void setFirstLogin(boolean firstLogin) {
+        this.firstLogin = firstLogin;
+    }
+
+    /**
+     * @return the list of available movies for the current user
+     */
+    public ArrayList<Movie> getAvailableMovies() {
+        return availableMovies;
+    }
+
+    /**
+     * @param availableMovies the new list of available movies for the current user
+     */
+    public void setAvailableMovies(final ArrayList<Movie> availableMovies) {
+        this.availableMovies = availableMovies;
+    }
+
+    /**
+     * @return the list of notifications for the user
+     */
+    public ArrayList<Notification> getNotifications() {
+        return notifications;
+    }
+
+    /**
+     * @param notifications the new list of notifications for the user
+     */
+    public void setNotifications(final ArrayList<Notification> notifications) {
+        this.notifications = notifications;
     }
 
     /**
@@ -156,15 +224,15 @@ public final class User {
      * @return true if the movie was added, false otherwise
      */
     public boolean addPurchasedMovie(final Movie movie) {
-        if (this.numFreePremiumMovies > 0 && credentials.isPremium()) {
-            this.numFreePremiumMovies--;
-        } else if (this.tokensCount > 0) {
-            this.tokensCount -= 2;
+        if (numFreePremiumMovies > 0 && credentials.isPremium()) {
+            numFreePremiumMovies--;
+        } else if (tokensCount > 0) {
+            tokensCount -= 2;
         } else {
             return false;
         }
 
-        this.purchasedMovies.add(movie);
+        purchasedMovies.add(movie);
         return true;
     }
 
@@ -174,7 +242,9 @@ public final class User {
      * @param movie the movie to be added to the list of watched movies
      */
     public void addWatchedMovie(final Movie movie) {
-        this.watchedMovies.add(movie);
+        if (!watchedMovies.contains(movie)) {
+            watchedMovies.add(movie);
+        }
     }
 
     /**
@@ -183,7 +253,7 @@ public final class User {
      * @param movie the movie to be added to the list of liked movies
      */
     public void addLikedMovie(final Movie movie) {
-        this.likedMovies.add(movie);
+        likedMovies.add(movie);
     }
 
     /**
@@ -192,6 +262,32 @@ public final class User {
      * @param movie the movie to be added to the rated movies list
      */
     public void addRatedMovie(final Movie movie) {
-        this.ratedMovies.add(movie);
+        if (!ratedMovies.contains(movie)) {
+            ratedMovies.add(movie);
+        }
+    }
+
+    /**
+     * Subscribe to a genre of movies. The user will receive notifications based
+     * on the genre.
+     *
+     * @param genre the genre to be subscribed to
+     */
+    public void subscribeTo(final String genre, final SubscriptionManager subscriptionManager) {
+        subscriptionManager.addSubscriber(genre, this);
+    }
+
+    /**
+     * Unsubscribe from a genre of movies. The user will no longer receive
+     * notifications based on the genre.
+     *
+     * @param genre the genre to be unsubscribed from
+     */
+    public void unsubscribeFrom(final String genre, final SubscriptionManager subscriptionManager) {
+        subscriptionManager.removeSubscriber(genre, this);
+    }
+
+    public void receiveNotification(final String message, final String movieName) {
+        notifications.add(new Notification(movieName, message));
     }
 }
