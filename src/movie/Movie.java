@@ -11,6 +11,7 @@ import user.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public final class Movie {
     public static final int                    MAX_RATING = 5;
@@ -226,6 +227,25 @@ public final class Movie {
         }
 
         rating = sum / numRatings;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Movie movie = (Movie) o;
+        return Objects.equals(name, movie.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     private static class RatingSerializer extends JsonSerializer<Double> {

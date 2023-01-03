@@ -191,6 +191,7 @@ public final class Session {
             } else if (ActionTypes.getActionType(action.getType()) == ActionTypes.BACK) {
                 if (history.isEmpty()) {
                     outputs.add(Output.genErrorOutput());
+
                     continue;
                 }
 
@@ -228,6 +229,8 @@ public final class Session {
 
                 if (actionOutput != null) {
                     outputs.add(actionOutput);
+                } else if (PageTypes.getPageType(currentPage.getTitle()) == PageTypes.MOVIES) {
+                    moviesOnPage = currentUser.getAvailableMovies();
                 }
             }
         }

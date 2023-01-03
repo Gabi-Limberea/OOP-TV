@@ -7,9 +7,9 @@ import user.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SubscriptionManager {
-    private static final String                           RECOMMENDATION_MSG = "Recommendation";
-    private static final String                           FAILED_RECOMMENDATION_MSG = "No recommendation";
+public final class SubscriptionManager {
+    private static final String RECOMMENDATION_MSG = "Recommendation";
+    private static final String NO_RECOMMENDATION  = "No recommendation";
     private final        HashMap<String, ArrayList<User>> subscriptions;
 
     public SubscriptionManager() {
@@ -51,6 +51,7 @@ public class SubscriptionManager {
 
         for (User user : subscriptions.get(genre)) {
             if (user.getAvailableMovies().contains(movie)) {
+
                 user.receiveNotification(message, movie.getName());
             }
         }
@@ -69,6 +70,11 @@ public class SubscriptionManager {
         return subscriptions.get(genre).contains(user);
     }
 
+    /**
+     * Try to recommend a movie to the user based on the user's preferences.
+     *
+     * @param user the user which will receive the recommendation
+     */
     public void sendRecommendation(final User user) {
         HashMap<String, Integer> genresLiked = new HashMap<>();
 
@@ -84,10 +90,9 @@ public class SubscriptionManager {
             }
         }
 
-        Notification notification = new Notification(FAILED_RECOMMENDATION_MSG, RECOMMENDATION_MSG);
+        Notification notification = new Notification(NO_RECOMMENDATION, RECOMMENDATION_MSG);
 
-        while (notification.getMovieName().equals(FAILED_RECOMMENDATION_MSG)
-               && !genresLiked.isEmpty()) {
+        while (notification.getMovieName().equals(NO_RECOMMENDATION) && !genresLiked.isEmpty()) {
             ArrayList<String> mostLikedGenres = new ArrayList<>();
             int max = 0;
 
@@ -112,6 +117,15 @@ public class SubscriptionManager {
         user.receiveNotification(notification.getMessage(), notification.getMovieName());
     }
 
+    /**
+     * Try to find the most popular movie from a given genre that the user likes
+     * and that he hasn't seen yet. If such a movie is found, the notification
+     * is updated with the movie's name.
+     *
+     * @param user         the user to whom the notification is sent
+     * @param genre        the genre from which the movie is chosen
+     * @param notification the notification to be sent
+     */
     private void findMostPopularMovieFromGenre(
             final User user, final String genre, final Notification notification
                                               ) {

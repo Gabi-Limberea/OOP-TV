@@ -1,14 +1,2 @@
 Starting audit...
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/user/User.java:89:31: Parameter firstLogin should be final. [FinalParameters]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/user/User.java:290:5: Missing a Javadoc comment. [MissingJavadocMethod]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/page/PageTypes.java:41:5: Missing a Javadoc comment. [MissingJavadocMethod]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/subscription/SubscriptionManager.java:12: Line is longer than 100 characters (found 106). [LineLength]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/subscription/SubscriptionManager.java:72:5: Class 'SubscriptionManager' looks like designed for extension (can be subclassed), but the method 'sendRecommendation' does not have javadoc that explains how to do that safely. If class is not designed for extension consider making the class 'SubscriptionManager' final or making the method 'sendRecommendation' static/final/abstract/empty, or adding allowed annotation for the method. [DesignForExtension]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/subscription/SubscriptionManager.java:72:5: Missing a Javadoc comment. [MissingJavadocMethod]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/stack/Stack.java:12:18: Parameter contents should be final. [FinalParameters]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/stack/Stack.java:16:5: Missing a Javadoc comment. [MissingJavadocMethod]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/stack/Stack.java:20:5: Missing a Javadoc comment. [MissingJavadocMethod]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/stack/Stack.java:28:5: Missing a Javadoc comment. [MissingJavadocMethod]
-[ERROR] /home/gabi/Documents/Programming/Java/OOP/Teme - OOP/POO-TV/./src/stack/Stack.java:40:5: Missing a Javadoc comment. [MissingJavadocMethod]
 Audit done.
-Checkstyle ends with 11 errors.

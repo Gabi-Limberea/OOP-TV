@@ -57,7 +57,7 @@ public final class Filter {
     }
 
     protected enum SortType {
-        ASCENDING("ascending"), DESCENDING("descending");
+        ASCENDING("increasing"), DESCENDING("decreasing");
 
         private final String type;
 

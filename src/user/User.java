@@ -86,7 +86,7 @@ public final class User {
      * @param firstLogin update whether the user has logged in for the first
      *                   time
      */
-    public void setFirstLogin(boolean firstLogin) {
+    public void setFirstLogin(final boolean firstLogin) {
         this.firstLogin = firstLogin;
     }
 
@@ -287,7 +287,19 @@ public final class User {
         subscriptionManager.removeSubscriber(genre, this);
     }
 
+    /**
+     * The user will receive a notification.
+     *
+     * @param message   the message for the notification
+     * @param movieName the name of the movie which triggered the notification
+     */
     public void receiveNotification(final String message, final String movieName) {
-        notifications.add(new Notification(movieName, message));
+        Notification newNotification = new Notification(movieName, message);
+
+        if (notifications.contains(newNotification)) {
+            return;
+        }
+
+        notifications.add(newNotification);
     }
 }

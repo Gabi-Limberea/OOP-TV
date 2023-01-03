@@ -38,6 +38,10 @@ public enum PageTypes {
         };
     }
 
+    /**
+     * @param title the title of the page
+     * @return true if the page can be registered in history, false otherwise
+     */
     public static boolean canAddToHistory(final String title) {
         return switch (Objects.requireNonNull(getPageType(title))) {
             case LOGIN, REGISTER, UNAUTHORIZED_HOME_PAGE, LOGOUT -> false;

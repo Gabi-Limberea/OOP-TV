@@ -40,7 +40,8 @@ public class MovieDatabase {
      */
     public void findAvailableMoviesForUser(final User user) {
         for (Movie movie : availableMovies) {
-            if (movie.isBanned(user.getCredentials().getCountry())) {
+            if (movie.isBanned(user.getCredentials().getCountry())
+                || user.getAvailableMovies().contains(movie)) {
                 continue;
             }
 
@@ -99,6 +100,10 @@ public class MovieDatabase {
         };
 
         if (movie != null) {
+            for (User user : registeredUsers) {
+                findAvailableMoviesForUser(user);
+            }
+
             for (String genre : movie.getGenres()) {
                 subscriptionManager.notifySubscribers(genre, action.getFeature().toUpperCase(),
                                                       movie
