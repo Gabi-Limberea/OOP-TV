@@ -11,6 +11,7 @@ import page.PageActionStrategy;
 import page.PageFactory;
 import page.PageTypes;
 import page.types.MovieDetailsPage;
+import recommendation.RecommendationManager;
 import stack.Stack;
 import subscription.SubscriptionManager;
 import user.User;
@@ -18,13 +19,14 @@ import user.User;
 import java.util.ArrayList;
 
 public final class Session {
-    private User                currentUser;
-    private Page                currentPage;
-    private ArrayList<User>     registeredUsers;
-    private MovieDatabase       moviesDatabase;
-    private ArrayList<Movie>    moviesOnPage;
-    private Stack<Page>         history;
-    private SubscriptionManager subscriptionManager;
+    private User                  currentUser;
+    private Page                  currentPage;
+    private ArrayList<User>       registeredUsers;
+    private MovieDatabase         moviesDatabase;
+    private ArrayList<Movie>      moviesOnPage;
+    private Stack<Page>           history;
+    private SubscriptionManager   subscriptionManager;
+    private RecommendationManager recommendationManager;
 
     public Session(
             final ArrayList<UserInput> registeredUsers, final ArrayList<MovieInput> availableMovies
@@ -41,6 +43,22 @@ public final class Session {
         }
 
         subscriptionManager = new SubscriptionManager();
+        recommendationManager = new RecommendationManager();
+    }
+
+    /**
+     * @return the reccomendation manager for this session
+     */
+    public RecommendationManager getRecommendationManager() {
+        return recommendationManager;
+    }
+
+    /**
+     * @param recommendationManager the new recommendation manager for this
+     *                              session
+     */
+    public void setRecommendationManager(final RecommendationManager recommendationManager) {
+        this.recommendationManager = recommendationManager;
     }
 
     /**
@@ -150,96 +168,139 @@ public final class Session {
 
         for (ActionInput action : actions) {
             if (ActionTypes.getActionType(action.getType()) == ActionTypes.CHANGE_PAGE) {
-                Page newPage = currentPage.changePage(PageTypes.getPageType(action.getPage()),
-                                                      action.getMovie(), moviesOnPage
-                                                     );
-
-                if (newPage == null) {
-                    outputs.add(Output.genErrorOutput());
-
-                    continue;
-                }
-
-                if (PageTypes.canAddToHistory(currentPage.getTitle())) {
-                    history.push(currentPage);
-                }
-
-                currentPage = newPage;
-
-                if (PageTypes.getPageType(action.getPage()) == PageTypes.LOGOUT) {
-                    currentUser = null;
-                    history.clear();
-                }
-
-                Output outputOnPageChange = currentPage.updateOnPageChange(this);
-
-                if (outputOnPageChange != null) {
-                    outputs.add(outputOnPageChange);
-                }
+                execChangePage(outputs, action);
             } else if (ActionTypes.getActionType(action.getType()) == ActionTypes.ON_PAGE) {
-                if (!PageTypes.hasAction(currentPage.getTitle())) {
-                    outputs.add(Output.genErrorOutput());
-                    continue;
-                }
-
-                PageActionStrategy pageAction = (PageActionStrategy) currentPage;
-                Output actionOutput = pageAction.execute(this, action);
-
-                if (actionOutput != null) {
-                    outputs.add(actionOutput);
-                }
+                execOnPage(outputs, action);
             } else if (ActionTypes.getActionType(action.getType()) == ActionTypes.BACK) {
-                if (history.isEmpty()) {
-                    outputs.add(Output.genErrorOutput());
-
-                    continue;
-                }
-
-                Page backPage;
-                Page dummyPage = history.pop();
-                PageTypes dummyPageType = PageTypes.getPageType(dummyPage.getTitle());
-
-                if (dummyPageType == PageTypes.MOVIE_DETAILS) {
-                    MovieDetailsPage detailPage = (MovieDetailsPage) dummyPage;
-
-                    backPage = currentPage.changePage(dummyPageType, detailPage.getMovieTitle(),
-                                                      moviesOnPage
-                                                     );
-                } else {
-                    backPage = currentPage.changePage(dummyPageType, null, moviesOnPage);
-                }
-
-                if (backPage == null) {
-                    outputs.add(Output.genErrorOutput());
-
-                    continue;
-                }
-
-                currentPage = backPage;
-
-                Output outputOnPageChange = currentPage.updateOnPageChange(this);
-
-                if (outputOnPageChange != null) {
-                    outputs.add(outputOnPageChange);
-                }
+                execBack(outputs);
             } else if (ActionTypes.getActionType(action.getType()) == ActionTypes.DATABASE) {
-                Output actionOutput = moviesDatabase.modifyDatabase(action, subscriptionManager,
-                                                                    registeredUsers
-                                                                   );
-
-                if (actionOutput != null) {
-                    outputs.add(actionOutput);
-                } else if (PageTypes.getPageType(currentPage.getTitle()) == PageTypes.MOVIES) {
-                    moviesOnPage = currentUser.getAvailableMovies();
-                }
+                execDatabaseChange(outputs, action);
             }
         }
 
         if (currentUser != null && currentUser.getCredentials().isPremium()) {
-            subscriptionManager.sendRecommendation(currentUser);
+            recommendationManager.sendRecommendation(currentUser);
             outputs.add(new Output(null, null, currentUser));
         }
 
         return outputs;
+    }
+
+    /**
+     * Modify the database based on the given action.
+     *
+     * @param outputs the list of outputs resulted from the execution of the
+     *                actions
+     * @param action  the action to be executed
+     */
+    private void execDatabaseChange(final ArrayList<Output> outputs, final ActionInput action) {
+        Output actionOutput = moviesDatabase.modifyDatabase(action, subscriptionManager,
+                                                            registeredUsers
+                                                           );
+
+        if (actionOutput != null) {
+            outputs.add(actionOutput);
+        } else if (PageTypes.getPageType(currentPage.getTitle()) == PageTypes.MOVIES) {
+            moviesOnPage = currentUser.getAvailableMovies();
+        }
+    }
+
+    /**
+     * Go back to the previous page in the history.
+     *
+     * @param outputs the list of outputs resulted from the execution of the
+     *                actions
+     */
+    private void execBack(final ArrayList<Output> outputs) {
+        if (history.isEmpty()) {
+            outputs.add(Output.genErrorOutput());
+
+            return;
+        }
+
+        Page backPage;
+        Page dummyPage = history.pop();
+        PageTypes dummyPageType = PageTypes.getPageType(dummyPage.getTitle());
+
+        if (dummyPageType == PageTypes.MOVIE_DETAILS) {
+            MovieDetailsPage detailPage = (MovieDetailsPage) dummyPage;
+
+            backPage = currentPage.changePage(dummyPageType, detailPage.getMovieTitle(),
+                                              moviesOnPage
+                                             );
+        } else {
+            backPage = currentPage.changePage(dummyPageType, null, moviesOnPage);
+        }
+
+        if (backPage == null) {
+            outputs.add(Output.genErrorOutput());
+
+            return;
+        }
+
+        currentPage = backPage;
+
+        Output outputOnPageChange = currentPage.updateOnPageChange(this);
+
+        if (outputOnPageChange != null) {
+            outputs.add(outputOnPageChange);
+        }
+    }
+
+    /**
+     * Execute the given on page action.
+     *
+     * @param outputs the list of outputs resulted from the execution of the
+     *                actions
+     * @param action  the action to be executed
+     */
+    private void execOnPage(final ArrayList<Output> outputs, final ActionInput action) {
+        if (!PageTypes.hasAction(currentPage.getTitle())) {
+            outputs.add(Output.genErrorOutput());
+            return;
+        }
+
+        PageActionStrategy pageAction = (PageActionStrategy) currentPage;
+        Output actionOutput = pageAction.execute(this, action);
+
+        if (actionOutput != null) {
+            outputs.add(actionOutput);
+        }
+    }
+
+    /**
+     * Change the current page to the given page.
+     *
+     * @param outputs the list of outputs resulted from the execution of the
+     *                actions
+     * @param action  the action to be executed
+     */
+    private void execChangePage(final ArrayList<Output> outputs, final ActionInput action) {
+        Page newPage = currentPage.changePage(PageTypes.getPageType(action.getPage()),
+                                              action.getMovie(), moviesOnPage
+                                             );
+
+        if (newPage == null) {
+            outputs.add(Output.genErrorOutput());
+
+            return;
+        }
+
+        if (PageTypes.canAddToHistory(currentPage.getTitle())) {
+            history.push(currentPage);
+        }
+
+        currentPage = newPage;
+
+        if (PageTypes.getPageType(action.getPage()) == PageTypes.LOGOUT) {
+            currentUser = null;
+            history.clear();
+        }
+
+        Output outputOnPageChange = currentPage.updateOnPageChange(this);
+
+        if (outputOnPageChange != null) {
+            outputs.add(outputOnPageChange);
+        }
     }
 }

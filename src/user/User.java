@@ -3,11 +3,11 @@ package user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import movie.Movie;
 import notification.Notification;
-import subscription.SubscriptionManager;
+import notification.NotificationReceiver;
 
 import java.util.ArrayList;
 
-public final class User {
+public final class User implements NotificationReceiver {
     private static final int                     MAX_FREE_PREMIUM_MOVIES = 15;
     private              Credentials             credentials;
     private              int                     tokensCount;
@@ -268,34 +268,11 @@ public final class User {
     }
 
     /**
-     * Subscribe to a genre of movies. The user will receive notifications based
-     * on the genre.
+     * Receive a new notification.
      *
-     * @param genre the genre to be subscribed to
+     * @param newNotification the notification to be received
      */
-    public void subscribeTo(final String genre, final SubscriptionManager subscriptionManager) {
-        subscriptionManager.addSubscriber(genre, this);
-    }
-
-    /**
-     * Unsubscribe from a genre of movies. The user will no longer receive
-     * notifications based on the genre.
-     *
-     * @param genre the genre to be unsubscribed from
-     */
-    public void unsubscribeFrom(final String genre, final SubscriptionManager subscriptionManager) {
-        subscriptionManager.removeSubscriber(genre, this);
-    }
-
-    /**
-     * The user will receive a notification.
-     *
-     * @param message   the message for the notification
-     * @param movieName the name of the movie which triggered the notification
-     */
-    public void receiveNotification(final String message, final String movieName) {
-        Notification newNotification = new Notification(movieName, message);
-
+    public void receiveNotification(final Notification newNotification) {
         if (notifications.contains(newNotification)) {
             return;
         }

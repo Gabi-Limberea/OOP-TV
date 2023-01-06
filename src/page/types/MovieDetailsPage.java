@@ -182,8 +182,9 @@ public final class MovieDetailsPage extends Page implements PageActionStrategy {
             return Output.genErrorOutput();
         }
 
-        session.getCurrentUser().subscribeTo(
-                action.getSubscribedGenre(), session.getSubscriptionManager());
+        session.getSubscriptionManager().addSubscriber(action.getSubscribedGenre(),
+                                                       session.getCurrentUser()
+                                                      );
 
         return null;
     }
