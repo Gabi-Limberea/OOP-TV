@@ -137,7 +137,7 @@ In order to add the subscription system, there is now a __Subscription
 Manager__ included in the __Session__. The __Subscription Manager__
 keeps track of the list of subscribers for each genre, thus becoming the
 middle man between the movie database and the users. Using an Observer
-design pattern, the __Subscription Manager__ supervises the movie database abd
+design pattern, the __Subscription Manager__ supervises the movie database and
 notifies the users when a movie from a genre they are subscribed to is added
 or removed. There is also a __Recommendation Manager__ that is used to send the
 recommendations to the premium users, at the end of the input cycle.
