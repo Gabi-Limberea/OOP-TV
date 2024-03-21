@@ -1,10 +1,10 @@
-# Movie Watching Platform - PooTV
+# Movie Watching Platform - OOP-TV
 
 #### Made by: [Gabriela Limberea - 322CA](https://github.com/Gabi-Limberea)
 
 ## __Description__:
 
-__PooTV__ is a movie watching platform that tries to achieve the same user
+__OOP-TV__ is a movie streaming platform that tries to achieve the same user
 experience as Netflix. It allows the users to create an account, log in and
 purchase movies from a given list of available movies, assuming that those
 movies are not banned in their country. After purchasing a movie, the user can
